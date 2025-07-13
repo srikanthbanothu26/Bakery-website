@@ -1,0 +1,90 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body class="bg-[#f8f4ee]">
+
+<!-- Back Button -->
+<div class="flex justify-end items-center mr-4 mt-4 mb-4">
+    <a href="{% url 'home' %}"
+       class="flex items-center text-blue-600 hover:text-blue-800 border-2 px-3 py-2 rounded">
+        Back
+    </a>
+</div>
+
+<!-- Registration Form Box -->
+<div class="w-full p-8 bg-white border border-[#e0caa4] rounded-xl shadow-lg flex flex-col items-center justify-center text-[#c6922e] max-h-[80vh]">
+    <h2 class="text-3xl font-extrabold text-center mb-6">Create an Account</h2>
+
+    <form method="post" class="space-y-6 w-full max-w-md">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+        <div class="flex flex-col relative">
+            <label for="{{ field.id_for_label }}" class="text-sm font-semibold mb-1">{{ field.label }}</label>
+            {{ field }}
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const el = document.getElementById("{{ field.id_for_label }}");
+                    if (el && el.tagName !== "SELECT" && el.type !== "file") {
+                        el.classList.add(
+                            "w-full", "bg-transparent", "border-0", "border-b", "border-gray-400",
+                            "focus:outline-none", "focus:border-[#c6922e]", "py-1", "px-1", "text-gray-800", "pr-10"
+                        );
+                    }
+                });
+            </script>
+
+            {% if field.field.widget.input_type == "password" %}
+            <button type="button" onclick="togglePassword('{{ field.id_for_label }}', this)"
+                    class="absolute right-2 top-[38px] text-sm text-gray-500 hover:text-gray-800 focus:outline-none">
+                Show
+            </button>
+            {% endif %}
+
+            {% if field.errors %}
+            <p class="text-sm text-red-600">{{ field.errors|striptags }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit"
+                class="w-full bg-[#c6922e] hover:bg-yellow-600 text-white font-semibold py-2 rounded shadow transition">
+            Register
+        </button>
+    </form>
+
+    {% if messages %}
+    <div class="mt-4">
+        {% for message in messages %}
+        <p class="text-center text-green-600 text-sm font-medium">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <p class="mt-6 text-center text-sm text-[#b57c1b]">
+        Already have an account?
+        <a href="{% url 'user_login' %}?role=user" class="text-red-600 font-bold hover:underline">Login</a>
+    </p>
+</div>
+
+<!-- JS to toggle password visibility -->
+<script>
+    function togglePassword(fieldId, button) {
+        const input = document.getElementById(fieldId);
+        if (input.type === "password") {
+            input.type = "text";
+            button.innerText = "Hide";
+        } else {
+            input.type = "password";
+            button.innerText = "Show";
+        }
+    }
+</script>
+
+</body>
+</html>

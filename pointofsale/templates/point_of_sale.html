@@ -1,0 +1,56 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point Of Sale</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          integrity="sha384-qf97I+0o3+D7fK2VFcFhJjRpKP5jWfD5zNhm1Tjo+T8TziqUDG+ThQo2rhJlF+8u" crossorigin="anonymous">
+</head>
+<body class="h-screen w-screen overflow-hidden">
+<header class="grid grid-cols-3 items-center bg-[#e0caa4] text-white h-20 px-4">
+    <div class="text-2xl font-bold flex items-center">
+        <a href="{% url 'home' %}" class="flex gap-2 items-center">
+            <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="h-16">
+            {{ bakery.name }}
+        </a>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+        <a href="{% url 'pos_view' %}">HOME</a>
+        <div>
+            <a href="{% url 'view_orders' %}">ORDERS</a>
+        </div>
+    </div>
+    <div class="flex items-center justify-end text-sm">
+        <div class="relative" x-data="{ open: false }" @click.away="open = false">
+            <button @click="open = !open" class="flex items-center gap-1 hover:text-[#b57c1b] transition">
+                <i class="fas fa-user-circle text-lg"></i>
+                <b class="mb-1">{{ user.username }}</b>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div x-show="open" x-transition
+                 class="absolute right-0 mt-2 bg-white border rounded shadow-lg z-50">
+                <a href="{% url 'user_info' user.id %}"
+                   class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Profile</a>
+                <a href="{% url 'user_address' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Manage
+                    Address</a>
+                <a href="{% url 'user_logout' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+{% block content %}
+
+{% endblock content %}
+</body>
+{% block scripts %}
+
+{% endblock scripts %}
+</html>

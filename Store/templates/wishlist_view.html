@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+<main class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">My Wishlists</h1>
+
+        {% if wishlists %}
+        <div class="space-y-4">
+            {% for wishlist in wishlists %}
+            <div class="bg-white shadow-sm rounded-md p-4 flex items-start gap-4 hover:shadow-md transition">
+
+                <!-- Product Image -->
+                <img src="{{ wishlist.product.image.url }}" alt="{{ wishlist.product.name }}"
+                     class="w-32 h-32 object-contain border rounded">
+
+                <!-- Product Details -->
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold text-gray-800">{{ wishlist.product.name }}</h2>
+                    {% if wishlist.product.price %}
+                    <p class="text-lg text-green-700 font-bold mt-2">
+                        {{ bakery.country.currency_symbol }} {{ wishlist.product.price }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col items-end justify-between h-full">
+                    <button class="remove-wishlist text-red-600 hover:underline text-sm"
+                            data-product-id="{{ wishlist.product.id }}">
+                        Remove
+                    </button>
+
+                    <button class="add-to-cart mt-4 bg-yellow-400 text-sm font-medium px-4 py-2 rounded hover:bg-yellow-500"
+                            data-product-id="{{ wishlist.product.id }}">
+                        Add to Cart
+                    </button>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center mt-20 text-gray-500 text-lg">
+            Your wishlist is empty. Start adding your favorite products!
+        </div>
+        {% endif %}
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Remove from wishlist
+        document.querySelectorAll('.remove-wishlist').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const productId = this.dataset.productId;
+                fetch(`/store/product/${productId}/remove_from_wishlist/`)
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        setTimeout(() => location.reload(), 800);
+                    })
+                    .catch(() => alert('Something went wrong!'));
+            });
+        });
+
+        // Add to cart
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const productId = this.dataset.productId;
+                fetch(`/store/add_to_cart/${productId}/`)
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        setTimeout(() => location.reload(), 800);
+                    })
+                    .catch(() => alert('Something went wrong!'));
+            });
+        });
+    });
+</script>
+{% endblock main_content %}

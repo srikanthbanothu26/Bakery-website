@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block main_content %}
+<div class="p-6 bg-gradient-to-b from-gray-100 to-white dark:from-gray-800 dark:to-black min-h-screen rounded-lg max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center mb-4">
+        <!-- Back Button -->
+        <div class="flex justify-start">
+            <a href="{% url 'home' %}"
+               class="flex items-center text-blue-600 dark:text-blue-300 font-medium border-b-2 border-blue-600 hover:text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="w-5 h-5 mr-1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <!-- Search Form -->
+        <form method="get" class="flex w-full items-center gap-2">
+            <input type="text" name="search" value="{{ search_query|default:'' }}"
+                   placeholder="Search products..."
+                   class="flex-grow border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <button type="submit"
+                    class="bg-[#c6922e] hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow">
+                Search
+            </button>
+        </form>
+
+        <!-- Add Product Button -->
+        <div class="flex justify-end">
+            <a href="{% url 'create_product_by_category' category.id %}"
+               class="px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold shadow">
+                + Add New Product
+            </a>
+        </div>
+    </div>
+
+    <h2 class="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 dark:text-white mb-10">
+        {{ category.name }} <span class="text-yellow-600">– {{ products|length }}</span>
+    </h2>
+
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+        {% for x in products %}
+        <div class="relative group rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-900 transition-transform duration-300 hover:scale-105">
+
+            <a href="{% url 'edit_product' x.id %}" class="block relative">
+                {% if x.image %}
+                <img src="{{ x.image.url }}" alt="{{ x.name }}"
+                     class="w-full h-64 object-cover transition duration-500 group-hover:scale-110">
+                {% else %}
+                <div class="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+                    No Image Available
+                </div>
+                {% endif %}
+                <!-- Product Name -->
+                <div class="absolute top-0 w-full text-center bg-black/60 py-2 z-10">
+                    <h3 class="text-white text-lg font-bold">{{ x.name }}</h3>
+                </div>
+
+                <!-- Product Price -->
+                {% if x.price %}
+                <div class="absolute bottom-0 w-full text-center bg-black/60 py-2 z-10">
+                    <p class="text-pink-300 font-semibold text-base">
+                        {{ bakery.country.currency_symbol }} {{ x.price|floatformat:2 }}
+                    </p>
+                </div>
+                {% endif %}
+            </a>
+
+            <!-- Hover Action Overlay -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/80 backdrop-blur-sm z-20">
+                <div class="flex items-center divide-x divide-gray-300">
+                    <!-- View Icon -->
+                    {% if user.is_superuser %}
+                    <a href="{% url 'edit_product' x.id %}" class="bg-white px-5 py-3 hover:bg-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
+                        </svg>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'view_product' x.id %}" class="bg-white px-5 py-3 hover:bg-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        </svg>
+                    </a>
+                    <!-- Wishlist Icon -->
+                    <button class="wishlist-toggle bg-white px-5 py-3 hover:bg-gray-100" data-product-id="{{ x.id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             fill="{% if x.id in wishlist_product_ids %}red{% else %}none{% endif %}"
+                             viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="size-6"
+                             data-state="{% if x.id in wishlist_product_ids %}added{% else %}not-added{% endif %}">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Cart Button -->
+                <button class="cart-toggle bg-[#C19A9A] hover:bg-[#a97c7c] text-white px-6 py-2 rounded-md flex items-center gap-2"
+                        data-product-id="{{ x.id }}" {% if x.id in cart_product_ids %}data-in-cart="true" {% endif %}>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5"
+                         stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+                    </svg>
+                    {% if x.id in cart_product_ids %}added in Cart{% else %}Add to Cart{% endif %}
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center col-span-full text-gray-500 dark:text-gray-400 text-lg font-medium">
+            No products found in this category.
+        </p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function handleAction(url, btn, type) {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message); // Replace with toast if needed
+                    setTimeout(() => window.location.reload(), 800);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Something went wrong');
+                });
+        }
+
+        document.querySelectorAll('.wishlist-toggle').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                const productId = btn.dataset.productId;
+                const svg = btn.querySelector('svg');
+                const state = svg.dataset.state;
+                const url = state === 'added'
+                    ? `/store/product/${productId}/remove_from_wishlist/`
+                    : `/store/product/${productId}/add_to_wishlist/`;
+                handleAction(url, btn, 'wishlist');
+            });
+        });
+
+        document.querySelectorAll('.cart-toggle').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (btn.dataset.inCart === 'true') {
+                    alert('Product existed in cart');
+                    return;
+                }
+                const productId = btn.dataset.productId;
+                const url = `/store/add_to_cart/${productId}/`;
+                handleAction(url, btn, 'cart');
+            });
+        });
+    });
+</script>
+{% endblock %}

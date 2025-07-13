@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Order Successful{% endblock %}
+
+{% block main_content %}
+<div class="text-center mt-20">
+    <div class="text-3xl font-bold text-green-700 mb-4 flex justify-center">
+        <div class="flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor"
+                 class="size-6 bg-green-600 text-white text-2xl rounded-md border-2 border-md">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+            </svg>
+        </div>
+        Order Placed Successfully!
+    </div>
+    <p class="text-lg">You chose <strong>Cash on Delivery</strong>.</p>
+    <p class="mt-2 text-gray-700">Total Amount: {{ bakery.country.currency_symbol }} {{ amount }}</p>
+    <a href="{% url 'home' %}" class="mt-6 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        Go to Home
+    </a>
+</div>
+{% endblock main_content %}

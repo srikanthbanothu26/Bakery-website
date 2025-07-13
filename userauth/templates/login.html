@@ -1,0 +1,79 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Login</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body class="min-h-screen bg-[#f8f4ee] text-[#c6922e] flex flex-col justify-center items-center px-4">
+
+<!-- Back Button -->
+<div class="absolute top-6 right-10">
+    <a href="{% url 'home' %}"
+       class="flex items-center text-blue-600 hover:text-blue-800 border-2 px-3 py-2 rounded">
+        Back
+    </a>
+</div>
+
+<!-- Login Box -->
+<div class="bg-white shadow-lg p-8 rounded-md w-full max-w-md border border-[#e6d3aa]">
+    <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <p class="text-center text-red-600 font-semibold text-sm">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Login Form -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="flex flex-col">
+            <label for="id_username" class="text-sm font-medium mb-1">Username</label>
+            <input type="text" name="username" id="id_username" placeholder="Enter your username"
+                   class="bg-transparent border-0 border-b border-gray-400 focus:outline-none focus:border-[#c6922e] py-1 px-1 text-gray-800 w-full"
+                   required>
+        </div>
+
+        <div class="flex flex-col relative">
+            <label for="id_password" class="text-sm font-medium mb-1">Password</label>
+            <input type="password" name="password" id="id_password" placeholder="Enter your password"
+                   class="bg-transparent border-0 border-b border-gray-400 focus:outline-none focus:border-[#c6922e] py-1 px-1 text-gray-800 w-full pr-10"
+                   required>
+            <button type="button" onclick="togglePassword('id_password', this)"
+                    class="absolute right-2 top-[38px] text-sm text-gray-500 hover:text-gray-800 focus:outline-none">
+                Show
+            </button>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-[#c6922e] hover:bg-yellow-600 text-white font-semibold py-2 rounded shadow-md transition">
+            Login
+        </button>
+
+        <div class="text-center text-sm mt-4">
+            Don’t have an account?
+            <a href="{% url 'user_register' %}" class="font-bold text-red-600 hover:underline">Sign Up</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function togglePassword(fieldId, button) {
+        const input = document.getElementById(fieldId);
+        if (input.type === "password") {
+            input.type = "text";
+            button.innerText = "Hide";
+        } else {
+            input.type = "password";
+            button.innerText = "Show";
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+<main class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">My Carts</h1>
+
+        {% if carts %}
+        <div class="space-y-4">
+            {% for cart in carts %}
+            <div class="bg-white shadow-sm rounded-md p-4 flex items-start gap-4 hover:shadow-md transition">
+
+                <!-- Product Image -->
+                <img src="{{ cart.product.image.url }}" alt="{{ cart.product.name }}"
+                     class="w-32 h-32 object-contain border rounded">
+
+                <!-- Product Details -->
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold text-gray-800">{{ cart.product.name }}</h2>
+                    {% if cart.product.price %}
+                    <p class="text-lg text-green-700 font-bold mt-2">
+                        {{ bakery.country.currency_symbol }} {{ cart.product.price }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col items-end justify-between h-full">
+                    <button class="remove-cart text-red-600 hover:underline text-sm"
+                            data-product-id="{{ cart.product.id }}">
+                        Remove
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center mt-20 text-gray-500 text-lg">
+            Your cart is empty. Start adding your favorite products!
+        </div>
+        {% endif %}
+    </div>
+</main>
+
+<!-- ✅ JavaScript for Remove Action -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.remove-cart').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const productId = this.dataset.productId;
+                fetch(`/store/remove_from_carts/${productId}/`)
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        setTimeout(() => location.reload(), 800);
+                    })
+                    .catch(() => alert("Something went wrong!"));
+            });
+        });
+    });
+</script>
+{% endblock %}

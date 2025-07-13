@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block main_content %}
+<div class="p-6">
+    <!-- Top Controls -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+        <div class="flex gap-2 items-center">
+            <a href="{% url 'create_user' %}"
+               class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                Create
+            </a>
+            <a href="{% url 'home' %}" class="border px-4 py-2 rounded hover:bg-gray-100 text-sm">
+                Back
+            </a>
+            <div id="deleteButtonContainer" class="hidden">
+                <button onclick="deleteSelected()"
+                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">
+                    Delete Selected
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-2 w-full md:w-auto">
+            <input type="text" id="searchInput" placeholder="Search username/email"
+                   class="border px-3 py-1 rounded col-span-2 text-sm w-full">
+
+            <select id="roleFilter" class="border px-2 py-1 rounded text-sm w-full">
+                <option value="">All Roles</option>
+                <option value="staff">Staff</option>
+                <option value="superuser">Superuser</option>
+            </select>
+
+            <input type="date" id="fromDate" class="border px-2 py-1 rounded text-sm w-full">
+            <input type="date" id="toDate" class="border px-2 py-1 rounded text-sm w-full">
+
+            <button onclick="applyFilters()"
+                    class="bg-gray-800 text-white px-4 py-1 rounded hover:bg-gray-700 col-span-1 text-sm">
+                Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-y-auto max-h-[60vh] border rounded shadow-sm">
+        <table id="userTable" class="w-full text-sm text-left border-collapse">
+            <thead class="bg-gray-100 text-gray-700 font-semibold sticky top-0 z-10">
+            <tr class="text-center">
+                <th class="border px-2 py-2">
+                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                </th>
+                <th class="border px-2 py-2">ID</th>
+                <th class="border px-2 py-2">Username</th>
+                <th class="border px-2 py-2">Email</th>
+                <th class="border px-2 py-2">Active</th>
+                <th class="border px-2 py-2">Last Login</th>
+                <th class="border px-2 py-2">Date Joined</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+            {% for user in users %}
+            <tr class="user-row text-center"
+                data-id="{{ user.id }}"
+                data-username="{{ user.username|lower }}"
+                data-email="{{ user.email|lower }}"
+                data-staff="{{ user.is_staff }}"
+                data-superuser="{{ user.is_superuser }}"
+                data-date="{{ user.date_joined|date:'Y-m-d' }}">
+                <td class="border px-2 py-2">
+                    <input type="checkbox" class="row-checkbox" value="{{ user.id }}">
+                </td>
+                <td class="border px-2 py-2 font-medium">{{ user.id }}</td>
+                <td class="border px-2 py-2">
+                    <a href="{% url 'view_user' user.id %}" class="text-blue-600 hover:underline">
+                        {{ user.username }}</a>
+                </td>
+                <td class="border px-2 py-2">{{ user.email }}</td>
+                <td class="border px-2 py-2">
+                    {% if user.is_active %}
+                    <span class="text-green-600 font-semibold">Yes</span>
+                    {% else %}
+                    <span class="text-red-600 font-semibold">No</span>
+                    {% endif %}
+                </td>
+                <td class="border px-2 py-2 text-xs date-local" data-utc="{{ user.last_login|date:'c' }}">
+                </td>
+                <td class="border px-2 py-2 text-xs date-local" data-utc="{{ user.date_joined|date:'c' }}">
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    function applyFilters() {
+        const search = document.getElementById("searchInput").value.toLowerCase();
+        const role = document.getElementById("roleFilter").value;
+        const fromDate = document.getElementById("fromDate").value;
+        const toDate = document.getElementById("toDate").value;
+
+        const rows = document.querySelectorAll(".user-row");
+
+        rows.forEach(row => {
+            const username = row.dataset.username;
+            const email = row.dataset.email;
+            const isStaff = row.dataset.staff === "True";
+            const isSuperuser = row.dataset.superuser === "True";
+            const dateJoined = row.dataset.date;
+
+            const matchesSearch = username.includes(search) || email.includes(search);
+
+            let matchesRole = true;
+            if (role === "staff") matchesRole = isStaff;
+            if (role === "superuser") matchesRole = isSuperuser;
+
+            let matchesDate = true;
+            if (fromDate && dateJoined < fromDate) matchesDate = false;
+            if (toDate && dateJoined > toDate) matchesDate = false;
+
+            row.style.display = (matchesSearch && matchesRole && matchesDate) ? "" : "none";
+        });
+    }
+
+    function toggleSelectAll(source) {
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = source.checked);
+        toggleDeleteButton();
+    }
+
+    function toggleDeleteButton() {
+        const anyChecked = document.querySelectorAll('.row-checkbox:checked').length > 0;
+        const btnContainer = document.getElementById("deleteButtonContainer");
+        if (anyChecked) {
+            btnContainer.classList.remove("hidden");
+        } else {
+            btnContainer.classList.add("hidden");
+        }
+    }
+
+    function deleteSelected() {
+        const selected = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+            .map(cb => cb.value);
+
+        if (selected.length === 0) {
+            alert("Please select at least one user.");
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${selected.length} user(s)?`)) return;
+
+        fetch("{% url 'delete_users' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: selected })
+        })
+        .then(response => {
+            if (response.ok) {
+                selected.forEach(id => {
+                    const row = document.querySelector(`tr[data-id="${id}"]`);
+                    if (row) row.remove();
+                });
+                toggleDeleteButton();
+            } else {
+                alert("Error deleting users.");
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".date-local").forEach(el => {
+            const utcDate = el.getAttribute("data-utc");
+            if (utcDate) {
+                const local = new Date(utcDate);
+                const options = {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                };
+                el.textContent = local.toLocaleString(undefined, options);
+            } else {
+                el.textContent = "—";
+            }
+        });
+
+        // Attach checkbox listeners
+        document.querySelectorAll(".row-checkbox").forEach(cb => {
+            cb.addEventListener("change", toggleDeleteButton);
+        });
+
+        document.getElementById("selectAll").addEventListener("change", toggleDeleteButton);
+    });
+</script>
+{% endblock %}

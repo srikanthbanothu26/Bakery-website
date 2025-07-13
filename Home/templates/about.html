@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+<main class="p-10 w-full">
+    <div class="grid grid-cols-2 gap-4">
+        <div class="text-sm italic subpixel-antialiased">
+            {{ bakery.about|safe }}
+        </div>
+        <div>
+            <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}">
+        </div>
+    </div>
+
+    {% if request.session.user_lat and request.session.user_lon %}
+    <div class="mt-4 space-y-2">
+        <a target="_blank"
+           href="https://www.google.com/maps?q={{ request.session.user_lat }},{{ request.session.user_lon }}"
+           class="text-blue-500 underline hover:text-blue-700 block">
+            📍 View My Current Location on Google Maps
+        </a>
+
+        <div class="bg-gray-100 p-4 rounded shadow text-sm text-gray-700 space-y-1">
+            {% if request.session.user_street %}
+            <p><strong>Street:</strong> {{ request.session.user_street }}</p>
+            {% endif %}
+            {% if request.session.user_city %}
+            <p><strong>City:</strong> {{ request.session.user_city }}</p>
+            {% endif %}
+            {% if request.session.user_postcode %}
+            <p><strong>Pincode:</strong> {{ request.session.user_postcode }}</p>
+            {% endif %}
+            {% if request.session.user_lat %}
+            <div class="mt-4 text-sm leading-relaxed text-gray-700">
+                <p><strong>Neighbourhood:</strong> {{ request.session.user_neighbourhood }}</p>
+                <p><strong>Suburb:</strong> {{ request.session.user_suburb }}</p>
+                <p><strong>City:</strong> {{ request.session.user_city }}</p>
+                <p><strong>District:</strong> {{ request.session.user_city_district }}</p>
+                <p><strong>County:</strong> {{ request.session.user_county }}</p>
+                <p><strong>State:</strong> {{ request.session.user_state }}</p>
+                <p><strong>State District:</strong> {{ request.session.user_state_district }}</p>
+                <p><strong>Country:</strong> {{ request.session.user_country }}</p>
+                <p><strong>Pincode:</strong> {{ request.session.user_postcode }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</main>
+{% endblock main_content %}
+
+{% block scripts %}
+<script>
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+            fetch('/save-location/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                })
+            }).then(res => res.json()).then(data => {
+                console.log("Location saved:", data);
+            }).catch(err => {
+                console.error("Error saving location:", err);
+            });
+        },
+        function (error) {
+            console.error("Error getting location:", error.message);
+        },
+        {
+            enableHighAccuracy: true,  // Use GPS/Wi-Fi for best precision
+            timeout: 10000,            // 10 seconds timeout
+            maximumAge: 0              // Don't use cached position
+        }
+    );
+</script>
+{% endblock scripts %}
+

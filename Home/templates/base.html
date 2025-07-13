@@ -1,0 +1,125 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}
+        {{ bakery.name }}
+        {% endblock %}</title>
+    <link href="{{ bakery.logo.url }}" rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          integrity="sha384-qf97I+0o3+D7fK2VFcFhJjRpKP5jWfD5zNhm1Tjo+T8TziqUDG+ThQo2rhJlF+8u" crossorigin="anonymous">
+</head>
+<body class="scroll-smooth bg-white text-gray-800">
+<!-- Social Icons -->
+<header class="h-28">
+    <div class="flex justify-end w-full items-center border-b h-10 bg-white px-6">
+        <div class="flex gap-4 mt-3">
+            <a href="{{ bakery.instagram }}" target="_blank" class="text-pink-600 hover:text-pink-800 transition">
+                <i class="fab fa-instagram text-xl"></i>
+            </a>
+            <a href="{{ bakery.twitter }}" target="_blank" class="text-blue-500 hover:text-blue-700 transition">
+                <i class="fab fa-twitter text-xl"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="grid grid-cols-3 items-center px-4 h-16 border-b bg-[#f8f4ee] text-[#c6922e] font-semibold shadow-sm">
+        <!-- Logo -->
+        <div class="text-xl tracking-wide font-bold flex items-center gap-2">
+            <a href="{% url 'home' %}">
+                <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="h-14 w-full">
+            </a>
+            <a href="{% url 'home' %}" class="hover:text-[#b57c1b] transition">{{ bakery.name.upper }}</a>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="flex gap-4 text-sm justify-center">
+            <a href="{% url 'home' %}" class="hover:text-[#b57c1b] transition">Home</a>
+            <a href="{% url 'about' %}" class="hover:text-[#b57c1b] transition">About Us</a>
+            <!-- Order Now Dropdown -->
+            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                <button @click="open = !open" class="hover:text-[#b57c1b] transition flex items-center">
+                    Order Now
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open" x-transition
+                     class="absolute mt-2 bg-white border rounded shadow-md z-50 text-gray-700">
+                    {% for category in product_categories %}
+                    <a href="{% url 'view_products' category.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                        {{ category.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if user.is_superuser or user.is_staff %}
+            <a href="{% url 'pos_view'%}" class="hover:text-[#b57c1b]">
+                Point Of Sale
+            </a>
+            {% endif %}
+            <a href="#footer" class="hover:text-[#b57c1b] transition">Contact Us</a>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="flex items-center gap-4 justify-end text-sm">
+            {% if user.is_superuser%}
+            <a href="{% url 'view_users'%}">
+                Users
+            </a>
+            {% endif %}
+            <a href="{% url 'wishlists' %}" class="hover:text-[#b57c1b] transition">
+                <i class="fas fa-heart text-lg"></i>
+            </a>
+
+            <a href="{% url 'carts' %}"
+               class="flex items-center gap-2 border border-[#c6922e] px-3 py-1 rounded hover:bg-[#e7d5b5] transition">
+                <i class="fas fa-shopping-cart"></i> My Carts
+            </a>
+
+            {% if user.is_authenticated %}
+            <!-- Profile Dropdown -->
+            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                <button @click="open = !open" class="flex items-center gap-1 hover:text-[#b57c1b] transition">
+                    <i class="fas fa-user-circle text-lg">
+                    </i>
+                    <b class="mb-1">{{ user.username }}</b>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open" x-transition
+                     class="absolute right-0 bg-white border rounded shadow-lg z-50">
+                    <a href="{% url 'user_info' user.id %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Profile</a>
+                    <a href="{% url 'orders' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">
+                        My Orders
+                    </a>
+                    <a href="{% url 'user_address' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Manage
+                        Address</a>
+                    <a href="{% url 'user_logout' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="{% url 'user_register' %}" class="hover:text-[#b57c1b] transition">Sign Up</a>
+            <a href="{% url 'user_login' %}" class="hover:text-[#b57c1b] transition">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+{% block main_content %}
+{% endblock main_content %}
+
+<!-- Scripts -->
+{% block scripts %}
+<script>
+</script>
+{% endblock %}
+</body>
+</html>

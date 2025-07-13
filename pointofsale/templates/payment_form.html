@@ -1,0 +1,37 @@
+{% extends 'point_of_sale.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex justify-center items-center h-screen bg-gray-100">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-4 text-center">Payment for {{ order.reference }}</h2>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="method" class="block font-medium mb-1">Payment Method</label>
+                {{ form.method }}
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Mark as Paid</label>
+                {{ form.paid }}
+            </div>
+
+            <div class="mt-6">
+                <button type="submit"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded">
+                    Confirm Payment
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-sm text-gray-600 text-center">
+            <p><strong>Total:</strong> {{ bakery.country.currency_symbol }} {{ order.total_amount }}</p>
+            <p><strong>Salesperson:</strong> {{ order.user.username }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

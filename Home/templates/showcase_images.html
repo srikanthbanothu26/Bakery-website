@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main_content %}
+<div class="relative w-full h-screen overflow-hidden">
+    <!-- Slide wrapper -->
+    <div id="carousel" class="flex transition-transform duration-700 ease-in-out w-full h-full">
+        {% for x in showcase_images|slice:":4" %}
+        <div class="flex-shrink-0 w-screen h-screen relative">
+            <!-- Image -->
+            <img src="{{ x.image.url }}" alt="{{ x.name }}"
+                 class="absolute inset-0 w-full h-full object-cover"/>
+
+            <!-- Overlay content -->
+            <div class="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center space-y-6 px-4">
+                <a href="{% url 'view_product' x.id %}"
+                   class="text-white text-5xl font-extrabold drop-shadow-lg border-[#c6922e] border-b-2">
+                    {{ x.name }}
+                </a>
+                <p class="text-white text-xl tracking-wider">
+                    {{ x.get_weight_display }}-<b>{{ bakery.country.currency_symbol }} {{ x.price }}</b>
+                </p>
+                <a href="{% url 'view_product' x.id %}"
+                   class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full shadow-lg font-semibold">
+                    Order Now
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Left Arrow -->
+    <button id="leftArrow" onclick="prevSlide()"
+            class="absolute top-1/2 left-5 transform -translate-y-1/2 text-white text-3xl bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full z-10 hidden">
+        &larr;
+    </button>
+
+    <!-- Right Arrow -->
+    <button onclick="nextSlide()"
+            class="absolute top-1/2 right-5 transform -translate-y-1/2 text-white text-3xl bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full z-10">
+        &rarr;
+    </button>
+</div>
+
+{% block index %}
+{% endblock index %}
+{% endblock main_content %}
+
+{% block scripts %}
+<script>
+    let currentIndex = 0;
+    const totalSlides = 4;
+    const carousel = document.getElementById("carousel");
+    const leftArrow = document.getElementById("leftArrow");
+
+    function updateSlide() {
+        const offset = -currentIndex * window.innerWidth;
+        carousel.style.transform = `translateX(${offset}px)`;
+
+        // Toggle visibility of left arrow
+        if (currentIndex === 0) {
+            leftArrow.classList.add('hidden');
+        } else {
+            leftArrow.classList.remove('hidden');
+        }
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateSlide();
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateSlide();
+    }
+
+    window.addEventListener('resize', updateSlide);
+    window.addEventListener('load', updateSlide);
+</script>
+{% endblock %}

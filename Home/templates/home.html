@@ -1,0 +1,61 @@
+{% extends 'index.html' %}
+{% load tz %}
+{% load static %}
+{% block home_content %}
+
+<footer class="bg-[#f8f4ee] border-t-2 border-[#e2d6c1] py-10 mt-12 shadow-inner" id="footer">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-6 text-[#c6922e]">
+        <!-- Brand & Contact -->
+        <div class="flex flex-col gap-5">
+            <a href="{% url 'home' %}">
+                <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="h-16 object-contain">
+            </a>
+            <div class="space-y-2">
+                <h2 class="text-lg font-bold uppercase">Contact Us</h2>
+                <p>
+                    <i class="fas fa-phone-alt mr-2 text-red-500"></i>
+                    <a href="tel:{{ bakery.phone }}" class="hover:text-green-500 transition">{{ bakery.phone }}</a>
+                </p>
+                <p>
+                    <i class="fas fa-envelope mr-2 text-yellow-500"></i>
+                    <a href="mailto:{{ bakery.email }}" class="hover:text-blue-500 transition">{{ bakery.email }}</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="flex flex-col gap-4 items-center md:items-start">
+            <h2 class="text-lg font-bold uppercase">Follow Us</h2>
+            <p class="text-sm text-[#b57c1b]">Let’s stay connected</p>
+            <div class="flex gap-4">
+                <a href="{{ bakery.instagram }}" target="_blank" class="hover:text-pink-700 transition">
+                    <i class="fab fa-instagram text-2xl text-pink-600"></i>
+                </a>
+                <a href="{{ bakery.twitter }}" target="_blank" class="hover:text-blue-700 transition">
+                    <i class="fab fa-twitter text-2xl text-blue-500"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Location Map -->
+        <div class="flex justify-center md:justify-end">
+            <iframe
+                    src="{{ bakery.address }}"
+                    width="100%"
+                    height="150"
+                    class="rounded-xl shadow-md border border-[#e2d6c1]"
+                    style="border:0;"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+
+    <!-- Bottom Note -->
+    <div class="mt-10 text-center text-sm text-[#b57c1b]">
+        &copy; {{ bakery.name }} {% now "Y" %}. All rights reserved.
+    </div>
+</footer>
+
+{% endblock home_content %}

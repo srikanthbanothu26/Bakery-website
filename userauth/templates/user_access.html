@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block main_content %}
+<div class="p-2">
+    <h2 class="text-2xl font-bold mb-2">Manage Users</h2>
+
+    <!-- Filters -->
+    <div class="mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
+            <div class="col-span-2">
+                <input id="searchInput" type="text" placeholder="Search by username or email"
+                       class="border px-3 py-2 rounded w-full"/>
+            </div>
+            <div class="col-span-1 flex gap-2">
+                <select id="statusSelect" class="border px-3 py-2 rounded w-full">
+                    <option value="">All Users</option>
+                    <option value="active">Active Users</option>
+                    <option value="inactive">Inactive Users</option>
+                </select>
+                <select id="staffSelect" class="border px-3 py-2 rounded w-full">
+                    <option value="">All Roles</option>
+                    <option value="staff">Staff Users</option>
+                    <option value="superuser">Superusers</option>
+                </select>
+            </div>
+            <div class="col-span-2 flex items-center gap-2 text-sm">
+                <label for="fromDate">From:</label>
+                <input type="date" id="fromDate" class="border px-2 py-1 rounded w-full"/>
+                <label for="toDate">To:</label>
+                <input type="date" id="toDate" class="border px-2 py-1 rounded w-full"/>
+            </div>
+            <div>
+                <button type="button" onclick="applyFilters()"
+                        class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded w-full">
+                    Filter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Form -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="overflow-y-auto max-h-[50vh] overflow-x-auto border rounded">
+            <table id="userTable" class="min-w-full border text-sm text-left">
+                <thead class="bg-gray-100 text-gray-700 font-semibold sticky top-0 z-10">
+                <tr class="text-center">
+                    <th class="border px-2 py-2">ID</th>
+                    <th class="border px-2 py-2">User</th>
+                    <th class="border px-2 py-2">Username</th>
+                    <th class="border px-2 py-2">Email</th>
+                    <th class="border px-2 py-2">First Name</th>
+                    <th class="border px-2 py-2">Last Name</th>
+                    <th class="border px-2 py-2">Active</th>
+                    <th class="border px-2 py-2">Staff</th>
+                    <th class="border px-2 py-2">Superuser</th>
+                    <th class="border px-2 py-2">Date Joined</th>
+                    <th class="border px-2 py-2">New Password</th>
+                    <th class="border px-2 py-2">Password Update?</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                {% for user in users %}
+                <tr class="text-center align-middle"
+                    data-username="{{ user.username|lower }}"
+                    data-email="{{ user.email|lower }}"
+                    data-active="{{ user.is_active }}"
+                    data-staff="{{ user.is_staff }}"
+                    data-superuser="{{ user.is_superuser }}"
+                    data-date="{{ user.date_joined|date:'Y-m-d' }}">
+                    <td class="border px-2 py-2 font-medium">{{ user.id }}</td>
+                    <td class="border px-2 py-2 text-left">{{ user.username }}</td>
+                    <td class="border px-2 py-1">
+                        <input type="text" name="user_{{ user.id }}_username" value="{{ user.username }}"
+                               class="w-full border px-2 py-1 rounded"/>
+                    </td>
+                    <td class="border px-2 py-1">
+                        <input type="email" name="user_{{ user.id }}_email" value="{{ user.email }}"
+                               class="w-full border px-2 py-1 rounded"/>
+                    </td>
+                    <td class="border px-2 py-1">
+                        <input type="text" name="user_{{ user.id }}_first_name" value="{{ user.first_name }}"
+                               class="w-full border px-2 py-1 rounded"/>
+                    </td>
+                    <td class="border px-2 py-1">
+                        <input type="text" name="user_{{ user.id }}_last_name" value="{{ user.last_name }}"
+                               class="w-full border px-2 py-1 rounded"/>
+                    </td>
+                    <td class="border px-2 py-2">
+                        <input type="checkbox" name="user_{{ user.id }}_is_active"
+                               class="mx-auto scale-110" {% if user.is_active %}checked{% endif %}/>
+                    </td>
+                    <td class="border px-2 py-2">
+                        <input type="checkbox" name="user_{{ user.id }}_is_staff"
+                               class="mx-auto scale-110" {% if user.is_staff %}checked{% endif %}/>
+                    </td>
+                    <td class="border px-2 py-2">
+                        <input type="checkbox" name="user_{{ user.id }}_is_superuser"
+                               class="mx-auto scale-110" {% if user.is_superuser %}checked{% endif %}/>
+                    </td>
+                    <td class="border px-2 py-2 text-xs">
+                        {{ user.date_joined|date:"Y-m-d H:i" }}
+                    </td>
+                    <td class="border px-2 py-1">
+                        <input type="password" name="user_{{ user.id }}_password"
+                               class="w-full border px-2 py-1 rounded" placeholder="New password"/>
+                    </td>
+                    <td class="border px-2 py-2">
+                        <input type="checkbox" name="user_{{ user.id }}_update_password"
+                               class="mx-auto scale-110"/>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const status = document.getElementById('statusSelect').value;
+        const staff = document.getElementById('staffSelect').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+
+        const rows = document.querySelectorAll('#userTable tbody tr');
+        rows.forEach(row => {
+            const username = row.dataset.username || '';
+            const email = row.dataset.email || '';
+            const isActive = row.dataset.active === "True";
+            const isStaff = row.dataset.staff === "True";
+            const isSuperuser = row.dataset.superuser === "True";
+            const dateJoined = row.dataset.date;
+
+            let visible = true;
+
+            if (search && !(username.includes(search) || email.includes(search))) visible = false;
+            if (status === 'active' && !isActive) visible = false;
+            if (status === 'inactive' && isActive) visible = false;
+            if (staff === 'staff' && !isStaff) visible = false;
+            if (staff === 'superuser' && !isSuperuser) visible = false;
+            if (fromDate && dateJoined < fromDate) visible = false;
+            if (toDate && dateJoined > toDate) visible = false;
+
+            row.style.display = visible ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

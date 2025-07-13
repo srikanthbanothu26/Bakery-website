@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-900 p-6 rounded shadow">
+    <h2 class="text-xl font-bold mb-4">Edit {{ field_label }}</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form_field }}
+        <div class="mt-4 flex justify-between">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+            <a href="{% url 'user_info' user_profile.user.id %}" class="text-gray-500 hover:underline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

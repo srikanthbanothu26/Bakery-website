@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Payment{% endblock %}
+
+{% block main_content %}
+<div class="flex flex-col-reverse sm:flex-row-reverse">
+    <a href="{{ request.META.HTTP_REFERER }}" class="border-2 border-md cursor-pointer px-2 mr-4">
+        Back
+    </a>
+</div>
+<div class="max-w-xl mx-auto mt-10 bg-white shadow p-8 rounded-lg">
+    <h2 class="text-2xl font-bold mb-4 text-center">Choose Payment Method</h2>
+
+    <form method="POST" action="{% url 'place_order' %}">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="quantity" value="{{ quantity }}">
+        <input type="hidden" name="total_amount" value="{{ total_amount }}">
+        <input type="hidden" name="address_id" value="{{ address.id }}">
+        <input type="hidden" name="weight" value="{{ weight }}">
+
+
+        <label class="flex items-center gap-2 mb-6">
+            <input type="radio" name="payment_method" value="COD" required>
+            Cash on Delivery ({{ bakery.country.currency_symbol }} {{ total_amount }})
+        </label>
+
+        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700">
+            Pay {{ bakery.country.currency_symbol }} {{ total_amount }} on Delivery
+        </button>
+    </form>
+</div>
+{% endblock %}

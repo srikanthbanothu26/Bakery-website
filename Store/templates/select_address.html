@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Select Address{% endblock %}
+
+{% block main_content %}
+<div class="flex flex-col-reverse sm:flex-row-reverse">
+    <a href="{{ request.META.HTTP_REFERER }}" class="border-2 border-md cursor-pointer px-2 mr-4">
+        Back
+    </a>
+</div>
+
+<div class="max-w-3xl mx-auto p-8 bg-white shadow rounded-lg mt-6">
+
+    <!-- Back Button -->
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Select Delivery Address</h2>
+
+    {% if addresses %}
+    <!-- Address Selection -->
+    <form method="POST" action="{% url 'select_payment' %}" class="mb-10">
+        {% csrf_token %}
+        {% for addr in addresses %}
+        <label class="block border rounded p-4 mb-4 hover:border-blue-500 cursor-pointer">
+            <input type="radio" name="address_id" value="{{ addr.id }}" required class="mr-2">
+            {{ addr.address }}, {{ addr.city }} - {{ addr.pincode }}, {{ addr.phone }}
+        </label>
+        {% endfor %}
+
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="quantity" value="{{ quantity }}">
+        <input type="hidden" name="total_amount" value="{{ total_amount }}">
+        <input type="hidden" name="weight" value="{{ weight }}">
+        <button type="submit"
+                class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+            Continue
+        </button>
+    </form>
+    {% endif %}
+
+    <!-- Add New Address -->
+    <div class="mt-10 border-t pt-6">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700">
+            {% if addresses %}Or add a new address{% else %}Add a new address{% endif %}
+        </h3>
+
+        {% if form.errors %}
+        <div class="mb-4 text-red-600 text-sm">
+            <ul>
+                {% for field in form %}
+                {% for error in field.errors %}
+                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label for="id_phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="text" name="phone" id="id_phone" value="{{ form.phone.value|default:'' }}"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <div>
+                    <label for="id_city" class="block text-sm font-medium text-gray-700">City</label>
+                    <input type="text" name="city" id="id_city" value="{{ form.city.value|default:'' }}"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="id_address" class="block text-sm font-medium text-gray-700">Address</label>
+                    <textarea name="address" id="id_address" rows="3"
+                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">{{ form.address.value|default:'' }}</textarea>
+                </div>
+
+                <div>
+                    <label for="id_pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
+                    <input type="text" name="pincode" id="id_pincode" value="{{ form.pincode.value|default:'' }}"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+            </div>
+
+            <!-- Hidden Fields -->
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="quantity" value="{{ quantity }}">
+            <input type="hidden" name="total_amount" value="{{ total_amount }}">
+            <input type="hidden" name="weight" value="{{ weight }}">
+
+
+            <button type="submit" name="add_address"
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-6">
+                Add Address
+            </button>
+        </form>
+    </div>
+
+    {% if not addresses %}
+    <!-- If no addresses exist, hide selection form -->
+    <p class="text-center text-gray-500 mt-10">You can proceed after adding an address.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

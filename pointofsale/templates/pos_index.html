@@ -1,0 +1,257 @@
+{% extends 'point_of_sale.html' %}
+{% load static %}
+
+{% block content %}
+<main class="grid grid-cols-1 md:grid-cols-3 h-screen overflow-hidden bg-white">
+    <!-- LEFT PANEL -->
+    <!-- LEFT PANEL -->
+    <div class="col-span-1 flex flex-col bg-gray-50 h-full overflow-hidden">
+        <!-- Cart Scrollable Area -->
+        <div class="flex-1 overflow-y-auto p-4">
+            <div id="selected-products" class="flex flex-col gap-2"></div>
+            <hr class="my-4">
+            <p class="font-bold text-lg text-gray-800">Total: <span id="cart-total">0.00</span>
+            </p>
+        </div>
+
+        <!-- Keypad Section -->
+        <div class="bg-white p-2 border-t shadow-md mb-20">
+            <div class="grid grid-cols-3 grid-rows-4 gap-2">
+                {% for key in "123456789" %}
+                <button onclick="handleKey('{{ key }}')"
+                        class="bg-white border rounded text-lg font-semibold hover:bg-gray-100 flex items-center justify-center">
+                    {{ key }}
+                </button>
+                {% endfor %}
+
+                <!-- Special Keys -->
+                <button onclick="handleKey('+/-')"
+                        class="bg-yellow-300 border rounded text-lg font-semibold hover:bg-yellow-400 flex items-center justify-center">
+                    +/-
+                </button>
+                <button onclick="handleKey('0')"
+                        class="bg-white border rounded text-lg font-semibold hover:bg-gray-100 flex items-center justify-center">
+                    0
+                </button>
+                <button onclick="handleKey('.')"
+                        class="bg-pink-300 border rounded text-lg font-semibold hover:bg-pink-400 flex items-center justify-center">
+                    .
+                </button>
+                <button onclick="setMode('qty')"
+                        class="bg-blue-500 text-white rounded text-lg font-semibold hover:bg-blue-600 flex items-center justify-center">
+                    Qty
+                </button>
+                <button onclick="setMode('price')"
+                        class="bg-green-500 text-white rounded text-lg font-semibold hover:bg-green-600 flex items-center justify-center">
+                    Price
+                </button>
+                <button onclick="Remove('remove_item')" class="flex items-center justify-center border-2 border-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Place Order Button -->
+            <!-- Place Order Button -->
+            <div class="mt-1">
+                <button id="place-order-btn" type="button"
+                        class="w-full bg-black text-white py-2 rounded hover:bg-gray-900 font-semibold">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="col-span-2 flex flex-col h-screen overflow-hidden">
+        <!-- Filter & Search -->
+        <div class="sticky top-0 bg-white z-10 p-4 shadow-md">
+            <form method="GET" action="{% url 'pos_view' %}" class="flex flex-wrap gap-2 mb-3">
+                {% for category in product_categories %}
+                <button type="submit" name="category_id" value="{{ category.id }}"
+                        class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded">
+                    {{ category.name }}
+                </button>
+                {% endfor %}
+            </form>
+            <form method="GET" action="{% url 'pos_view' %}" class="flex gap-2">
+                {% if selected_category_id %}
+                <input type="hidden" name="category_id" value="{{ selected_category_id }}">
+                {% endif %}
+                <input type="text" name="search" placeholder="Search products..." value="{{ search_query }}"
+                       class="flex-grow border border-gray-300 rounded px-3 py-2">
+                <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Product Grid Scrollable -->
+        <div class="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {% for product in products %}
+            <div class="bg-white p-3 border rounded-lg shadow-sm hover:shadow cursor-pointer text-center"
+                 onclick="addToCart('{{ product.id }}', '{{ product.name }}', {{ product.price }})">
+                <h3 class="text-sm font-semibold">{{ product.name }}</h3>
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                     class="h-24 w-full object-cover rounded my-2"/>
+                {% else %}
+                <div class="h-24 bg-gray-200 flex items-center justify-center rounded text-sm text-gray-500 my-2">
+                    No Image
+                </div>
+                {% endif %}
+                <p class="text-gray-800 font-semibold text-sm">
+                    {{bakery.country.currency_symbol}} {{ product.price }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock content %}
+{% block scripts %}
+<script>
+    const currencySymbol = "{{ bakery.country.currency_symbol }}";
+
+    const selectedProductsContainer = document.getElementById("selected-products");
+    const cartTotalEl = document.getElementById("cart-total");
+
+    let cart = [];
+    let total = 0;
+    let selectedItemIndex = null;
+    let inputBuffer = "";
+    let inputMode = "";
+
+    // Load cart and total from localStorage
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedCart = localStorage.getItem("pos_cart");
+        const savedTotal = localStorage.getItem("pos_total");
+
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+            total = parseFloat(savedTotal || 0);
+            renderCart();
+        }
+    });
+
+    function addToCart(id, name, price) {
+        const index = cart.findIndex(item => item.id === id);
+        if (index !== -1) {
+            cart[index].qty += 1;
+        } else {
+            cart.push({ id, name, price, qty: 1 });
+        }
+        renderCart();
+    }
+
+    function renderCart() {
+        selectedProductsContainer.innerHTML = "";
+        total = 0;
+
+        cart.forEach((item, index) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = `flex justify-between items-center px-4 py-2 rounded cursor-pointer ${selectedItemIndex === index ? 'bg-yellow-100 border border-yellow-400' : 'bg-white'} shadow`;
+            itemDiv.innerHTML = `
+                <div class="flex flex-col">
+                    <span class="font-semibold">${item.name}</span>
+                    <span class="text-sm text-gray-500">Qty: ${item.qty} × ${currencySymbol}${item.price.toFixed(2)}</span>
+                </div>
+                <span class="font-bold">${currencySymbol}${(item.qty * item.price).toFixed(2)}</span>
+            `;
+            itemDiv.onclick = () => {
+                selectedItemIndex = index;
+                inputBuffer = "";
+                renderCart();
+            };
+            selectedProductsContainer.appendChild(itemDiv);
+            total += item.qty * item.price;
+        });
+
+        cartTotalEl.textContent = `${currencySymbol}${total.toFixed(2)}`;
+
+        // Save to localStorage
+        localStorage.setItem("pos_cart", JSON.stringify(cart));
+        localStorage.setItem("pos_total", total.toFixed(2));
+    }
+
+    function handleKey(key) {
+        if (key === '+/-') {
+            inputBuffer = inputBuffer.startsWith('-') ? inputBuffer.slice(1) : '-' + inputBuffer;
+        } else {
+            inputBuffer += key;
+        }
+    }
+
+    function setMode(mode) {
+        inputMode = mode;
+        if (selectedItemIndex !== null && !isNaN(parseFloat(inputBuffer))) {
+            if (mode === "qty") {
+                cart[selectedItemIndex].qty = parseFloat(inputBuffer);
+            } else if (mode === "price") {
+                cart[selectedItemIndex].price = parseFloat(inputBuffer);
+            }
+            inputBuffer = "";
+            renderCart();
+        }
+    }
+
+    function Remove() {
+        if (selectedItemIndex !== null) {
+            cart.splice(selectedItemIndex, 1);
+            selectedItemIndex = null;
+            inputBuffer = "";
+            renderCart();
+        }
+    }
+
+    document.getElementById("place-order-btn").addEventListener("click", function () {
+        if (cart.length === 0) {
+            alert("Cart is empty!");
+            return;
+        }
+
+        const csrfToken = getCookie('csrftoken');
+
+        fetch("{% url 'create_pos_order' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify({
+                cart: cart,
+                total: total,
+            }),
+        })
+        .then(response => {
+            if (response.redirected) {
+                localStorage.removeItem("pos_cart");
+                localStorage.removeItem("pos_total");
+                window.location.href = response.url;
+            } else {
+                alert("Failed to place order!");
+            }
+        })
+        .catch(error => {
+            console.error("Error placing order:", error);
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+{% endblock scripts %}
