@@ -9,5 +9,5 @@
 /Store/migrations/__pycache__/
 /userauth/__pycache__/
 /userauth/migrations/__pycache__/
-script.py
-products.csv
+/script.py
+/products.csv
