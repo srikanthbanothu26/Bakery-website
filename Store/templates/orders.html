@@ -32,8 +32,12 @@
         <div class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition p-4">
             <div class="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
                 <div class="flex items-center gap-4 flex-1">
+                    {% if order.product.image %}
                     <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}"
                          class="w-16 h-16 object-cover rounded">
+                    {% else %}
+                    <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="w-16 h-16 rounded">
+                    {% endif %}
                     <div>
                         <h2 class="text-lg font-semibold text-gray-800">
                             {{ forloop.counter }}. {{ order.product.name }} x {{ order.weight }} x {{ order.quantity }}x
