@@ -1,0 +1,13 @@
+/*.pyc
+/__pycache__/
+/Home/__pycache__/
+/Home/migrations/__pycache__/
+/Bakerywebsite/__pycache__/
+/pointofsale/__pycache__/
+/Store/__pycache__/
+/pointofsale/migrations/__pycache__/
+/Store/migrations/__pycache__/
+/userauth/__pycache__/
+/userauth/migrations/__pycache__/
+script.py
+products.csv
