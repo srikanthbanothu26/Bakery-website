@@ -28,7 +28,11 @@ SECRET_KEY = 'django-insecure-l_6bljb3$v$_5@%=xl9(60eam^iy4#k)_3b3o9aaz@#m3s4t&=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "native-karrie-srkm-b0bf17a5.koyeb.app",
+    "127.0.0.1",
+    "localhost",
+]
 
 # Application definition
 
