@@ -1,14 +1,34 @@
 {% extends 'base.html' %}
-{% block main_content %}
-<div class="max-w-xl mx-auto bg-white dark:bg-gray-900 p-6 rounded shadow">
-    <h2 class="text-xl font-bold mb-4">Edit {{ field_label }}</h2>
+{% block title %}Edit {{ field_label }}{% endblock %}
 
-    <form method="post" enctype="multipart/form-data">
+{% block main_content %}
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-900 p-6 rounded shadow mt-8">
+    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
+        Edit {{ field_label }}
+    </h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
         {% csrf_token %}
-        {{ form_field }}
-        <div class="mt-4 flex justify-between">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
-            <a href="{% url 'user_info' user_profile.user.id %}" class="text-gray-500 hover:underline">Cancel</a>
+
+        <div>
+            <label for="form_field" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ field_label }}
+            </label>
+            {{ form_field }}
+            {% if form_field.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ form_field.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-between items-center">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition">
+                💾 Save
+            </button>
+            <a href="{% url 'user_info' user_profile.user.id %}"
+               class="text-sm text-gray-500 hover:text-blue-600 transition underline">
+                Cancel
+            </a>
         </div>
     </form>
 </div>

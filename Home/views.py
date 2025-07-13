@@ -5,6 +5,11 @@ from Store.models import Products, ProductCategory
 from .forms import UsersForm, AddressForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+import json
+import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 
 # from .location_fetching import get_location_from_ip
@@ -30,6 +35,7 @@ def about(request):
 @login_required
 def user_info(request, user_id):
     bakery = Bakery.objects.filter(active=True).first()
+    product_categories = ProductCategory.objects.all()
 
     user = get_object_or_404(User, id=user_id)
     user_profile = get_object_or_404(UserInfo, user=user)
@@ -37,6 +43,7 @@ def user_info(request, user_id):
     return render(request, 'user_info.html', {
         'bakery': bakery,
         'current_user': user_profile,
+        'product_categories': product_categories,
     })
 
 
@@ -45,6 +52,8 @@ from django.forms import modelform_factory
 
 @login_required
 def edit_user_field(request, field):
+    product_categories = ProductCategory.objects.all()
+
     bakery = Bakery.objects.filter(active=True).first()
     user_profile = get_object_or_404(UserInfo, user=request.user)
 
@@ -52,7 +61,6 @@ def edit_user_field(request, field):
     if field not in editable_fields:
         raise Http404("This field cannot be edited.")
 
-    # ✅ Dynamically create a form with only the editable field
     UserFieldForm = modelform_factory(UserInfo, fields=[field])
 
     if request.method == 'POST':
@@ -63,26 +71,36 @@ def edit_user_field(request, field):
     else:
         form = UserFieldForm(instance=user_profile)
 
+    form.fields[field].widget.attrs.update({
+        'class': 'w-full border-b-2 border-gray-300 focus:border-blue-500 transition p-2 outline-none bg-white dark:bg-gray-900 text-black dark:text-white',
+        'id': 'form_field'
+    })
+
     return render(request, 'edit_user_field.html', {
         'form': form,
         'form_field': form[field],
         'field_label': field.capitalize(),
         'user_profile': user_profile,
         'bakery': bakery,
+        'product_categories': product_categories,
     })
 
 
 def user_address(request):
     bakery = Bakery.objects.filter(active=True).first()
     address = Address.objects.filter(user=request.user)
+    product_categories = ProductCategory.objects.all()
+
     return render(request, 'user_address.html', {
         'bakery': bakery,
         'address': address,
+        'product_categories': product_categories,
     })
 
 
 def new_address(request):
     bakery = Bakery.objects.filter(active=True).first()
+    product_categories = ProductCategory.objects.all()
 
     if request.method == 'POST':
         form = AddressForm(request.POST, request.FILES)
@@ -94,12 +112,14 @@ def new_address(request):
     else:
         form = AddressForm()  # No instance needed for new address
 
-    return render(request, 'new_address.html', {'bakery': bakery, 'form': form})
+    return render(request, 'new_address.html',
+                  {'bakery': bakery, 'form': form, 'product_categories': product_categories})
 
 
 def edit_address(request, address_id):
     bakery = Bakery.objects.filter(active=True).first()
     address = get_object_or_404(Address, id=address_id)
+    product_categories = ProductCategory.objects.all()
 
     if request.method == 'POST':
         form = AddressForm(request.POST, request.FILES, instance=address)
@@ -110,20 +130,14 @@ def edit_address(request, address_id):
             return redirect('user_address')
     else:
         form = AddressForm(instance=address)
-    return render(request, 'edit_address.html', {'bakery': bakery, 'form': form})
+    return render(request, 'edit_address.html',
+                  {'bakery': bakery, 'form': form, 'product_categories': product_categories})
 
 
 def delete_address(request, address_id):
     address = get_object_or_404(Address, id=address_id)
     address.delete()
     return redirect('user_address')
-
-
-import json
-import requests
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 
 
 @csrf_exempt

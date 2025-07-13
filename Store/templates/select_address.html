@@ -2,103 +2,165 @@
 {% block title %}Select Address{% endblock %}
 
 {% block main_content %}
-<div class="flex flex-col-reverse sm:flex-row-reverse">
-    <a href="{{ request.META.HTTP_REFERER }}" class="border-2 border-md cursor-pointer px-2 mr-4">
-        Back
-    </a>
-</div>
+<div class="bg-white shadow rounded-lg mt-6 max-h-[80vh] overflow-hidden">
+    <h2 class="text-2xl font-bold text-gray-800 px-6 py-4 border-b">Select Delivery Address</h2>
 
-<div class="max-w-3xl mx-auto p-8 bg-white shadow rounded-lg mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 h-[calc(80vh-64px)]">
+        <!-- LEFT: Saved Addresses -->
+        <div class="flex flex-col border-r px-4 py-2 overflow-y-auto">
+            <form method="POST" action="{% url 'select_payment' %}" class="flex flex-col h-full">
+                {% csrf_token %}
 
-    <!-- Back Button -->
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Select Delivery Address</h2>
+                {% if addresses %}
+                <div class="space-y-3 overflow-y-auto max-h-[240px]">
+                    {% for addr in addresses %}
+                    <label class="block border border-gray-300 hover:border-blue-500 rounded p-3 cursor-pointer text-sm leading-relaxed">
+                        <input type="radio" name="address_id" value="{{ addr.id }}" required class="mr-2">
+                        <span class="font-semibold">{{ addr.address }}</span>, {{ addr.city }} - {{ addr.pincode }}<br>
+                        📞 {{ addr.phone }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-sm">No saved addresses found.</p>
+                {% endif %}
 
-    {% if addresses %}
-    <!-- Address Selection -->
-    <form method="POST" action="{% url 'select_payment' %}" class="mb-10">
-        {% csrf_token %}
-        {% for addr in addresses %}
-        <label class="block border rounded p-4 mb-4 hover:border-blue-500 cursor-pointer">
-            <input type="radio" name="address_id" value="{{ addr.id }}" required class="mr-2">
-            {{ addr.address }}, {{ addr.city }} - {{ addr.pincode }}, {{ addr.phone }}
-        </label>
-        {% endfor %}
+                <!-- Hidden Fields -->
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="quantity" value="{{ quantity }}">
+                <input type="hidden" name="total_amount" value="{{ total_amount }}">
+                <input type="hidden" name="weight" value="{{ weight }}">
 
-        <input type="hidden" name="product_id" value="{{ product.id }}">
-        <input type="hidden" name="quantity" value="{{ quantity }}">
-        <input type="hidden" name="total_amount" value="{{ total_amount }}">
-        <input type="hidden" name="weight" value="{{ weight }}">
-        <button type="submit"
-                class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-            Continue
-        </button>
-    </form>
-    {% endif %}
-
-    <!-- Add New Address -->
-    <div class="mt-10 border-t pt-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-700">
-            {% if addresses %}Or add a new address{% else %}Add a new address{% endif %}
-        </h3>
-
-        {% if form.errors %}
-        <div class="mb-4 text-red-600 text-sm">
-            <ul>
-                {% for field in form %}
-                {% for error in field.errors %}
-                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                {% endfor %}
-                {% endfor %}
-            </ul>
+                <div class="mt-auto pt-4">
+                    {% if addresses %}
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm">
+                        ✅ Continue with Selected Address
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
         </div>
-        {% endif %}
 
-        <form method="POST">
-            {% csrf_token %}
-            <div class="grid gap-4 md:grid-cols-2">
-                <div>
-                    <label for="id_phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                    <input type="text" name="phone" id="id_phone" value="{{ form.phone.value|default:'' }}"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="id_city" class="block text-sm font-medium text-gray-700">City</label>
-                    <input type="text" name="city" id="id_city" value="{{ form.city.value|default:'' }}"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <div class="md:col-span-2">
-                    <label for="id_address" class="block text-sm font-medium text-gray-700">Address</label>
-                    <textarea name="address" id="id_address" rows="3"
-                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">{{ form.address.value|default:'' }}</textarea>
-                </div>
-
-                <div>
-                    <label for="id_pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
-                    <input type="text" name="pincode" id="id_pincode" value="{{ form.pincode.value|default:'' }}"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
+        <!-- RIGHT: Use Location + Form + Map -->
+        <div class="flex flex-col justify-between px-4 py-2 overflow-y-auto">
+            <div class="mb-2 flex items-center justify-between">
+                <span class="text-sm text-gray-700 font-medium">Add New Address</span>
+                <button id="use-location"
+                        class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm underline">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+                    </svg>
+                    Use Current Location
+                </button>
             </div>
 
-            <!-- Hidden Fields -->
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <input type="hidden" name="quantity" value="{{ quantity }}">
-            <input type="hidden" name="total_amount" value="{{ total_amount }}">
-            <input type="hidden" name="weight" value="{{ weight }}">
+            <!-- Map -->
+            <div id="map" class="w-full h-52 rounded shadow mb-4"></div>
 
+            <!-- Address Form -->
+            <form method="POST" class="space-y-3">
+                {% csrf_token %}
+                <input type="hidden" name="latitude" id="lat">
+                <input type="hidden" name="longitude" id="lon">
 
-            <button type="submit" name="add_address"
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-6">
-                Add Address
-            </button>
-        </form>
+                <div>
+                    <label class="block text-sm font-medium">Phone</label>
+                    <input type="text" name="phone" required
+                           class="w-full border border-gray-300 px-3 py-2 rounded shadow-sm text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">City</label>
+                    <input type="text" name="city" id="city_auto" required
+                           class="w-full border border-gray-300 px-3 py-2 rounded shadow-sm text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Address</label>
+                    <textarea name="address" id="address_auto" rows="2" required
+                              class="w-full border border-gray-300 px-3 py-2 rounded shadow-sm text-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium">Pincode</label>
+                    <input type="text" name="pincode" id="pincode_auto" required
+                           class="w-full border border-gray-300 px-3 py-2 rounded shadow-sm text-sm">
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="quantity" value="{{ quantity }}">
+                <input type="hidden" name="total_amount" value="{{ total_amount }}">
+                <input type="hidden" name="weight" value="{{ weight }}">
+
+                <div class="text-right pt-2">
+                    <button type="submit" name="add_address"
+                            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 text-sm">
+                        📦 Save This Address
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    {% if not addresses %}
-    <!-- If no addresses exist, hide selection form -->
-    <p class="text-center text-gray-500 mt-10">You can proceed after adding an address.</p>
-    {% endif %}
-
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    let map, marker;
+
+    function initMap(lat, lon) {
+        if (!map) {
+            map = L.map('map').setView([lat, lon], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        if (marker) map.removeLayer(marker);
+
+        marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+        reverseGeocode(lat, lon);
+
+        marker.on("dragend", function (e) {
+            const pos = e.target.getLatLng();
+            reverseGeocode(pos.lat, pos.lng);
+        });
+    }
+
+    function reverseGeocode(lat, lon) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+            .then(res => res.json())
+            .then(data => {
+                const address = data.address || {};
+                document.getElementById("city_auto").value = address.city || address.town || address.village || '';
+                document.getElementById("address_auto").value =
+                    `${address.road || ''}, ${address.suburb || ''}, ${address.neighbourhood || ''}`;
+                document.getElementById("pincode_auto").value = address.postcode || '';
+                document.getElementById("lat").value = lat;
+                document.getElementById("lon").value = lon;
+            });
+    }
+
+    document.getElementById("use-location").addEventListener("click", () => {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                initMap(lat, lon);
+            },
+            err => alert("Failed to get location: " + err.message),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+</script>
 {% endblock %}

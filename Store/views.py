@@ -157,26 +157,22 @@ def carts_view(request):
 
 @login_required(login_url='user_login')
 def start_order(request, product_id):
+    product_categories = ProductCategory.objects.all()
     bakery = Bakery.objects.filter(active=True).first()
     product = get_object_or_404(Products, id=product_id)
-    quantity = float(request.POST.get("quantity"))
+    quantity = float(request.POST.get("quantity") or 1)
     selected_weight = request.POST.get("weight")
-    product_categories = ProductCategory.objects.all()
-
     weight_multiplier = {
         '250gm': 0.25,
         '500gm': 0.5,
         '1kg': 1,
         '1500gm': 1.5,
         '2kg': 2
-    }.get(selected_weight)
-
+    }.get(selected_weight, 1)
     total_amount = product.price * weight_multiplier * quantity
-
     addresses = Address.objects.filter(user=request.user)
     form = AddressForm()
 
-    # Save order temporarily or show address selection
     if request.method == 'POST' and 'add_address' in request.POST:
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -184,6 +180,7 @@ def start_order(request, product_id):
             new_address.user = request.user
             new_address.save()
             addresses = Address.objects.filter(user=request.user)
+            form = AddressForm()
 
     return render(request, "select_address.html", {
         'product': product,
@@ -200,6 +197,8 @@ def start_order(request, product_id):
 @login_required(login_url='user_login')
 def select_payment(request):
     bakery = Bakery.objects.filter(active=True).first()
+    product_categories = ProductCategory.objects.all()
+
     if request.method == 'POST':
         product_id = request.POST.get("product_id")
         quantity = float(request.POST.get("quantity"))
@@ -217,12 +216,15 @@ def select_payment(request):
             'address': address,
             'weight': selected_weight,
             'bakery': bakery,
+            'product_categories': product_categories,
         })
 
 
 @login_required(login_url='user_login')
 def place_order(request):
     bakery = Bakery.objects.filter(active=True).first()
+    product_categories = ProductCategory.objects.all()
+
     if request.method == 'POST':
         product = get_object_or_404(Products, id=request.POST['product_id'])
         address = get_object_or_404(Address, id=request.POST['address_id'])
@@ -240,13 +242,16 @@ def place_order(request):
             quantity=quantity,
         )
 
-        return render(request, "order_success.html", {'amount': total_amount, 'bakery': bakery})
+        return render(request, "order_success.html",
+                      {'amount': total_amount, 'bakery': bakery, 'product_categories': product_categories, })
 
 
 def get_orders(request):
     bakery = Bakery.objects.filter(active=True).first()
     search_query = request.GET.get('search', '')
+    product_categories = ProductCategory.objects.all()
     orders = Orders.objects.filter(user=request.user)
+
     if search_query:
         orders = orders.filter(
             Q(product__name__icontains=search_query) |
@@ -256,7 +261,8 @@ def get_orders(request):
     return render(request, 'orders.html', {
         'orders': orders,
         'bakery': bakery,
-        'search_query': search_query
+        'search_query': search_query,
+        'product_categories': product_categories,
     })
 
 

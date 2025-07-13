@@ -53,8 +53,8 @@ class Orders(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    product = models.ForeignKey(Products, on_delete=models.CASCADE, null=True, blank=True)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Products, on_delete=models.SET_NULL, null=True, blank=True)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
     total_amount = models.FloatField(null=True, blank=True)
     weight = models.CharField(max_length=20, null=True, blank=True)
     reference = models.CharField(max_length=20, blank=True, null=True, unique=True)
