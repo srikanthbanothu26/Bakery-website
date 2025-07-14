@@ -24,12 +24,18 @@
             <div class="bg-white shadow-sm rounded-md p-4 flex items-start gap-4 hover:shadow-md transition">
 
                 <!-- Product Image -->
-                <img src="{{ wishlist.product.image.url }}" alt="{{ wishlist.product.name }}"
-                     class="w-32 h-32 object-contain border rounded">
+                <a href="{% url 'view_product' wishlist.product.id %}">
+                    <img src="{{ wishlist.product.image.url }}" alt="{{ wishlist.product.name }}"
+                         class="w-32 h-32 object-contain border rounded">
+                </a>
 
                 <!-- Product Details -->
                 <div class="flex-1">
-                    <h2 class="text-lg font-semibold text-gray-800">{{ wishlist.product.name }}</h2>
+                    <h2 class="text-lg font-semibold text-gray-800 hover:text-blue-600 text-red-600">
+                        <a href="{% url 'view_product' wishlist.product.id %}">
+                            {{ wishlist.product.name }}
+                        </a>
+                    </h2>
                     {% if wishlist.product.price %}
                     <p class="text-lg text-green-700 font-bold mt-2">
                         {{ bakery.country.currency_symbol }} {{ wishlist.product.price }}
