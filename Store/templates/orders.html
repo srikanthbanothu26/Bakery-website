@@ -5,8 +5,13 @@
 
 {% block main_content %}
 <div class="flex justify-end mb-4 px-4">
-    <a href="{{ request.META.HTTP_REFERER }}" class="text-sm border px-4 py-1 rounded hover:bg-gray-100">
-        ← Back
+    <a href="{{ request.META.HTTP_REFERER }}"
+       class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+        </svg>
+        Back
     </a>
 </div>
 

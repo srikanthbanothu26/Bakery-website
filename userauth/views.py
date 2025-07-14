@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+from Store.models import Products, ProductCategory
+from django.db.models import Count
 
 
 def register(request):
@@ -83,11 +85,14 @@ def user_access(request):
 def view_users(request):
     users = User.objects.all().order_by('id')
     bakery = Bakery.objects.filter(active=True).first()
-    return render(request, 'view_users.html', {'users': users, 'bakery': bakery})
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+    return render(request, 'view_users.html',
+                  {'users': users, 'bakery': bakery, 'product_categories': product_categories})
 
 
 def create_user(request):
     bakery = Bakery.objects.filter(active=True).first()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     if request.method == 'POST':
         username = request.POST.get('username')
         is_staff = bool(request.POST.get('is_staff'))
@@ -100,12 +105,13 @@ def create_user(request):
         user.is_active = is_active
         user.save()
         return redirect('view_users')
-    return render(request, 'create_user.html', {'bakery': bakery})
+    return render(request, 'create_user.html', {'bakery': bakery, 'product_categories': product_categories})
 
 
 def view_user(request, user_id):
     bakery = Bakery.objects.filter(active=True).first()
     user_obj = get_object_or_404(User, id=user_id)
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     if request.method == 'POST':
         user_obj.username = request.POST.get('username')
         user_obj.is_staff = bool(request.POST.get('is_staff'))
@@ -113,7 +119,8 @@ def view_user(request, user_id):
         user_obj.is_active = bool(request.POST.get('is_active'))
         user_obj.save()
         return redirect('view_user', user_id=user_obj.id)
-    return render(request, 'create_user.html', {'user_obj': user_obj, 'bakery': bakery})
+    return render(request, 'create_user.html',
+                  {'user_obj': user_obj, 'bakery': bakery, 'product_categories': product_categories})
 
 
 def update_password(request, user_id):

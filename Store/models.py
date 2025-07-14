@@ -22,7 +22,8 @@ class Products(models.Model):
     name = models.CharField(null=True, blank=True, max_length=400)
     image = models.ImageField(null=True, blank=True, upload_to='static/images/products/')
     price = models.FloatField(null=True, blank=True)
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, null=True, blank=True,
+                                 related_name='products')
     weight = models.CharField(choices=weights, default='1kg', max_length=100)
 
     def __str__(self):

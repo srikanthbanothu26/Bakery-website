@@ -6,7 +6,8 @@
     <!-- Header -->
     <div class="grid grid-cols-4 px-6 pt-6">
         <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-gray-800 border-b-2 border-green-600 pb-2">Order History</h1>
+
+            <h1 class="text-2xl font-bold text-gray-800 border-b-2 border-green-600 pb-2">Order History ({{ orders|length }})</h1>
         </div>
         <div class="flex items-center col-span-2">
             <form method="GET" action="{% url 'view_orders' %}" class="flex flex-wrap gap-2 items-center">
@@ -35,7 +36,12 @@
         </div>
         <div class="flex items-center gap-2 justify-end">
             <a href="{{ request.META.HTTP_REFERER }}"
-               class="text-sm bg-white border border-gray-300 px-3 py-1 rounded shadow hover:bg-gray-100">
+               class="flex items-center text-sm bg-white border border-gray-300 px-3 py-1 rounded shadow hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor"
+                     class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+                </svg>
                 Back
             </a>
         </div>

@@ -2,13 +2,19 @@
 {% block title %}Payment{% endblock %}
 
 {% block main_content %}
-<div class="flex flex-col-reverse sm:flex-row-reverse">
-    <a href="{{ request.META.HTTP_REFERER }}" class="border-2 border-md cursor-pointer px-2 mr-4">
-        Back
-    </a>
-</div>
 <div class="max-w-xl mx-auto mt-10 bg-white shadow p-8 rounded-lg">
-    <h2 class="text-2xl font-bold mb-4 text-center">Choose Payment Method</h2>
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800 px-6 py-4 border-b">Select Payment Method</h2>
+        <a href="{{ request.META.HTTP_REFERER }}" class="flex items-center border-2 px-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor"
+                 class="size-4">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+            </svg>
+            Back
+        </a>
+    </div>
 
     <form method="POST" action="{% url 'place_order' %}">
         {% csrf_token %}

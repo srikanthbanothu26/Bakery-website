@@ -5,7 +5,13 @@
 
 {% block main_content %}
 <div class="flex flex-col-reverse sm:flex-row-reverse mr-4 mt-2">
-    <a href="{{ request.META.HTTP_REFERER }}" class="border-2 px-2">
+    <a href="{{ request.META.HTTP_REFERER }}" class="flex items-center border-2 px-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+             stroke="currentColor"
+             class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+        </svg>
         Back
     </a>
 </div>

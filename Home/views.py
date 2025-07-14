@@ -10,32 +10,32 @@ import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.db.models import Count
 
 
 # from .location_fetching import get_location_from_ip
-
+# ip = request.META.get('REMOTE_ADDR')
+# location = get_location_from_ip(ip)
+# print(location)
 
 def home(request):
     bakery = Bakery.objects.filter(active=True).first()
     showcase_images = Products.objects.all()
-    product_categories = ProductCategory.objects.all()
-    # ip = request.META.get('REMOTE_ADDR')
-    # location = get_location_from_ip(ip)
-    # print(location)
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     return render(request, 'home.html',
                   {'bakery': bakery, 'showcase_images': showcase_images, 'product_categories': product_categories})
 
 
 def about(request):
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     return render(request, 'about.html', {'bakery': bakery, 'product_categories': product_categories})
 
 
 @login_required
 def user_info(request, user_id):
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     user = get_object_or_404(User, id=user_id)
     user_profile = get_object_or_404(UserInfo, user=user)
@@ -52,7 +52,7 @@ from django.forms import modelform_factory
 
 @login_required
 def edit_user_field(request, field):
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     bakery = Bakery.objects.filter(active=True).first()
     user_profile = get_object_or_404(UserInfo, user=request.user)
@@ -89,7 +89,7 @@ def edit_user_field(request, field):
 def user_address(request):
     bakery = Bakery.objects.filter(active=True).first()
     address = Address.objects.filter(user=request.user)
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     return render(request, 'user_address.html', {
         'bakery': bakery,
@@ -100,7 +100,7 @@ def user_address(request):
 
 def new_address(request):
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     if request.method == 'POST':
         form = AddressForm(request.POST, request.FILES)
@@ -119,7 +119,7 @@ def new_address(request):
 def edit_address(request, address_id):
     bakery = Bakery.objects.filter(active=True).first()
     address = get_object_or_404(Address, id=address_id)
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     if request.method == 'POST':
         form = AddressForm(request.POST, request.FILES, instance=address)

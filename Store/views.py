@@ -7,11 +7,12 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from Home.forms import AddressForm
 from django.utils import timezone
+from django.db.models import Count
 
 
 @login_required(login_url='user_login')
 def view_products_by_category(request, category_id):
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     category = get_object_or_404(ProductCategory, id=category_id)
     bakery = Bakery.objects.filter(active=True).first()
 
@@ -38,7 +39,7 @@ def view_products_by_category(request, category_id):
 def create_product_by_category(request, category_id):
     category = get_object_or_404(ProductCategory, pk=category_id)
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -57,7 +58,7 @@ def create_product_by_category(request, category_id):
 def edit_product(request, product_id):
     product = get_object_or_404(Products, id=product_id)
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
 
@@ -86,7 +87,7 @@ def view_product(request, product_id):
     bakery = Bakery.objects.filter(active=True).first()
     wishlist_product_ids = Wishlist.objects.filter(user=request.user).values_list('product', flat=True)
     cart_product_ids = Cart.objects.filter(user=request.user).values_list('product', flat=True)
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     return render(request, 'view_product.html', {'product': product, 'wishlist_product_ids': wishlist_product_ids,
                                                  'cart_product_ids': cart_product_ids, 'bakery': bakery,
                                                  'product_categories': product_categories, })
@@ -139,8 +140,8 @@ def remove_from_carts(request, product_id):
 
 @login_required(login_url='user_login')
 def wishlist_view(request):
-    product_categories = ProductCategory.objects.all()
-    wishlists = Wishlist.objects.filter(user=request.user)
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+    wishlists = Wishlist.objects.filter(user=request.user).order_by('-id')
     bakery = Bakery.objects.filter(active=True).first()
     return render(request, 'wishlist_view.html',
                   {'wishlists': wishlists, 'bakery': bakery, 'product_categories': product_categories, })
@@ -148,8 +149,8 @@ def wishlist_view(request):
 
 @login_required(login_url='user_login')
 def carts_view(request):
-    product_categories = ProductCategory.objects.all()
-    carts = Cart.objects.filter(user=request.user)
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+    carts = Cart.objects.filter(user=request.user).order_by('-id')
     bakery = Bakery.objects.filter(active=True).first()
     return render(request, 'carts_view.html',
                   {'carts': carts, 'bakery': bakery, 'product_categories': product_categories, })
@@ -157,7 +158,7 @@ def carts_view(request):
 
 @login_required(login_url='user_login')
 def start_order(request, product_id):
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     bakery = Bakery.objects.filter(active=True).first()
     product = get_object_or_404(Products, id=product_id)
     quantity = float(request.POST.get("quantity") or 1)
@@ -170,7 +171,7 @@ def start_order(request, product_id):
         '2kg': 2
     }.get(selected_weight, 1)
     total_amount = product.price * weight_multiplier * quantity
-    addresses = Address.objects.filter(user=request.user)
+    addresses = Address.objects.filter(user=request.user).order_by('-id')
     form = AddressForm()
 
     if request.method == 'POST' and 'add_address' in request.POST:
@@ -179,7 +180,7 @@ def start_order(request, product_id):
             new_address = form.save(commit=False)
             new_address.user = request.user
             new_address.save()
-            addresses = Address.objects.filter(user=request.user)
+            addresses = Address.objects.filter(user=request.user).order_by('-id')
             form = AddressForm()
 
     return render(request, "select_address.html", {
@@ -197,7 +198,7 @@ def start_order(request, product_id):
 @login_required(login_url='user_login')
 def select_payment(request):
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     if request.method == 'POST':
         product_id = request.POST.get("product_id")
@@ -223,8 +224,7 @@ def select_payment(request):
 @login_required(login_url='user_login')
 def place_order(request):
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.all()
-
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     if request.method == 'POST':
         product = get_object_or_404(Products, id=request.POST['product_id'])
         address = get_object_or_404(Address, id=request.POST['address_id'])
@@ -249,8 +249,8 @@ def place_order(request):
 def get_orders(request):
     bakery = Bakery.objects.filter(active=True).first()
     search_query = request.GET.get('search', '')
-    product_categories = ProductCategory.objects.all()
-    orders = Orders.objects.filter(user=request.user)
+    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+    orders = Orders.objects.filter(user=request.user).order_by('-id')
 
     if search_query:
         orders = orders.filter(

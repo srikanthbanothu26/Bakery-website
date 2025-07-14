@@ -85,7 +85,7 @@ def payment_view(request, order_id):
 @login_required(login_url='user_login')
 def view_orders(request):
     bakery = Bakery.objects.filter(active=True).first()
-    orders = Order.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-id')
 
     search_query = request.GET.get('search')
     if search_query:

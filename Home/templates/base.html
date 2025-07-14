@@ -58,7 +58,8 @@
                      class="absolute mt-2 bg-white border rounded shadow-md z-50 text-gray-700">
                     {% for category in product_categories %}
                     <a href="{% url 'view_products' category.id %}" class="block px-4 py-2 hover:bg-gray-100">
-                        {{ category.name }}</a>
+                        {{ category.name }} ({{ category.product_count }})
+                    </a>
                     {% endfor %}
                 </div>
             </div>

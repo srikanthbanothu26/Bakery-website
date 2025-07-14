@@ -3,20 +3,40 @@
 {% block main_content %}
 <main class="bg-gray-100 p-6">
     <div class="max-w-6xl mx-auto">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">My Carts</h1>
-
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">My Carts ({{ carts|length }})</h1>
+            <div class="flex justify-end mb-4 px-4">
+                <a href="{{ request.META.HTTP_REFERER }}"
+                   class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor"
+                         class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+                    </svg>
+                    Back
+                </a>
+            </div>
+        </div>
         {% if carts %}
         <div class="space-y-4">
             {% for cart in carts %}
             <div class="bg-white shadow-sm rounded-md p-4 flex items-start gap-4 hover:shadow-md transition">
 
                 <!-- Product Image -->
-                <img src="{{ cart.product.image.url }}" alt="{{ cart.product.name }}"
-                     class="w-32 h-32 object-contain border rounded">
+                <a href="{% url 'view_product' cart.product.id">
+                    <img src="{{ cart.product.image.url }}"
+                         alt="{{ cart.product.name }}"
+                         class="w-32 h-32 object-contain border rounded">
+                </a>
 
                 <!-- Product Details -->
                 <div class="flex-1">
-                    <h2 class="text-lg font-semibold text-gray-800">{{ cart.product.name }}</h2>
+                    <a href="{% url 'view_product' cart.product.id" class="flex items-center">
+                        <h2 class="text-lg font-semibold text-gray-800 hover:text-blue-600 border-b-2 border-blue-600">
+                            {{ cart.product.name }}
+                        </h2>
+                    </a>
                     {% if cart.product.price %}
                     <p class="text-lg text-green-700 font-bold mt-2">
                         {{ bakery.country.currency_symbol }} {{ cart.product.price }}
