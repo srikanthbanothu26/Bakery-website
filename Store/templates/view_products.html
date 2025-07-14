@@ -26,7 +26,7 @@
                 Search
             </button>
         </form>
-
+        {% if user.is_superuser %}
         <!-- Add Product Button -->
         <div class="flex justify-end">
             <a href="{% url 'create_product_by_category' category.id %}"
@@ -34,6 +34,7 @@
                 + Add New Product
             </a>
         </div>
+        {% endif %}
     </div>
 
     <h2 class="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 dark:text-white mb-10">
