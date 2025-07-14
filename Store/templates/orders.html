@@ -45,7 +45,9 @@
                     {% endif %}
                     <div>
                         <h2 class="text-lg font-semibold text-gray-800">
-                            {{ forloop.counter }}. {{ order.product.name }} x {{ order.weight }} x {{ order.quantity }}x
+                            {{ forloop.counter }}. <a href="{% url 'view_product' order.product.id"
+                                                      class="border-b-2 hover:border-blue-600">
+                            {{ order.product.name }}</a> x {{ order.weight }} x {{ order.quantity }}x
                             {{ order.product.price }}
                         </h2>
                         <p class="text-sm text-gray-500">{{ order.reference }}</p>
