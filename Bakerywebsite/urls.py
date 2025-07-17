@@ -40,4 +40,12 @@ urlpatterns = [
                       'document_root': settings.STATICFILES_DIRS[0],  # Serve from static folder
                       'path': 'robots.txt',
                   }),
+                  re_path(
+                      r'^google4a7221419211403f\.html$',
+                      serve,
+                      {
+                          'document_root': settings.STATICFILES_DIRS[0],
+                          'path': 'google4a7221419211403f.html'
+                      }
+                  ),
               ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS)
