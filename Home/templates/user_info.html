@@ -7,14 +7,18 @@
 
     <!-- Back Button -->
     <div class="mb-6">
-        <a href="{{ request.META.HTTP_REFERER }}"
+        <a href="{% url 'home' %}"
            class="inline-flex items-center text-sm border border-gray-300 px-3 py-1 rounded hover:bg-gray-100">
-            ← Back
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="size-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+            </svg>
+            Back
         </a>
     </div>
 
     <!-- Profile Image Centered -->
-    <div class="relative mx-auto w-40 h-40 mb-6">
+    <div class="relative mx-auto w-40 h-40 mb-8">
         {% if current_user.image %}
         <img src="{{ current_user.image.url }}" alt="User Image"
              class="rounded-full object-cover w-full h-full shadow border">
@@ -23,7 +27,7 @@
             No Image
         </div>
         {% endif %}
-        <div class="text-center mt-3">
+        <div class="text-center mt-2">
             <a href="{% url 'edit_user_field' 'image' %}"
                class="inline-flex items-center border px-4 py-2 rounded hover:bg-gray-100 text-sm">
                 Edit Profile Image
@@ -51,7 +55,9 @@
                 <div class="flex items-center justify-between px-6 py-4">
                     <div>
                         <p class="text-sm font-semibold text-gray-600">Email</p>
-                        <p class="text-lg text-gray-900">{{ current_user.email }}</p>
+                        <p class="text-lg text-gray-900">
+                            {{ current_user.email|slice:":16" }}{% if current_user.email|length > 16 %}...{% endif %}
+                        </p>
                     </div>
                     <a href="{% url 'edit_user_field' 'email' %}"
                        class="px-4 py-1 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
@@ -97,16 +103,14 @@
                 </p>{% endif %}
                 </div>
             </div>
-
-            <!-- Google Maps Link -->
-            <div class="text-center">
-                <a target="_blank"
-                   href="https://www.google.com/maps?q={{ request.session.user_lat }},{{ request.session.user_lon }}"
-                   class="text-blue-600 underline hover:text-blue-800 inline-block">
-                    📍 View Current Location on Google Maps
-                </a>
-            </div>
             {% endif %}
+        </div>
+        <div class="text-center">
+            <a target="_blank"
+               href="https://www.google.com/maps?q={{ request.session.user_lat }},{{ request.session.user_lon }}"
+               class="text-blue-600 underline hover:text-blue-800 inline-block">
+                📍 View Current Location on Google Maps
+            </a>
         </div>
     </div>
 </div>

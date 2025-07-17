@@ -9,8 +9,12 @@
             Edit {{ field_label }}
         </h2>
         <a href="{% url 'user_info' user_profile.user.id %}"
-           class="text-sm text-blue-600 hover:underline hover:text-blue-800 transition">
-            ← Back
+           class="flex items-center text-sm text-blue-600 hover:underline hover:text-blue-800 transition border-2 px-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="size-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+            </svg>
+            Back
         </a>
     </div>
 

@@ -161,19 +161,43 @@ def start_order(request, product_id):
     product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
     bakery = Bakery.objects.filter(active=True).first()
     product = get_object_or_404(Products, id=product_id)
-    quantity = float(request.POST.get("quantity") or 1)
-    selected_weight = request.POST.get("weight")
-    weight_multiplier = {
-        '250gm': 0.25,
-        '500gm': 0.5,
-        '1kg': 1,
-        '1500gm': 1.5,
-        '2kg': 2
-    }.get(selected_weight, 1)
-    total_amount = product.price * weight_multiplier * quantity
-    addresses = Address.objects.filter(user=request.user).order_by('-id')
     form = AddressForm()
+    addresses = Address.objects.filter(user=request.user).order_by('-id')
 
+    if request.method == 'POST':
+        quantity = float(request.POST.get("quantity") or 1)
+        selected_weight = request.POST.get("weight")
+        weight_multiplier = {
+            '250gm': 0.25,
+            '500gm': 0.5,
+            '1kg': 1,
+            '1500gm': 1.5,
+            '2kg': 2
+        }.get(selected_weight, 1)
+        total_amount = product.price * weight_multiplier * quantity
+
+        # Store order info in session
+        request.session['order_data'] = {
+            'product_id': product.id,
+            'quantity': quantity,
+            'weight': selected_weight,
+            'total_amount': total_amount,
+        }
+
+    # Get data from session if returning from payment page
+    order_data = request.session.get('order_data')
+    if order_data:
+        quantity = order_data.get('quantity', 1)
+        selected_weight = order_data.get('weight', '1kg')
+        total_amount = order_data.get('total_amount', product.price)
+
+    else:
+        # fallback defaults
+        quantity = 1
+        selected_weight = '1kg'
+        total_amount = product.price
+
+    # Handle address form submission
     if request.method == 'POST' and 'add_address' in request.POST:
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -201,21 +225,22 @@ def select_payment(request):
     product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
 
     if request.method == 'POST':
-        product_id = request.POST.get("product_id")
-        quantity = float(request.POST.get("quantity"))
-        total_amount = float(request.POST.get("total_amount"))
         address_id = request.POST.get("address_id")
-        selected_weight = request.POST.get("weight", "1kg")
-
-        product = get_object_or_404(Products, id=product_id)
         address = get_object_or_404(Address, id=address_id)
+
+        # Get order details from session
+        order_data = request.session.get('order_data')
+        if not order_data:
+            return redirect('start_order')  # fallback
+
+        product = get_object_or_404(Products, id=order_data['product_id'])
 
         return render(request, "payment_method.html", {
             'product': product,
-            'quantity': quantity,
-            'total_amount': total_amount,
+            'quantity': order_data['quantity'],
+            'total_amount': order_data['total_amount'],
             'address': address,
-            'weight': selected_weight,
+            'weight': order_data['weight'],
             'bakery': bakery,
             'product_categories': product_categories,
         })
@@ -225,6 +250,7 @@ def select_payment(request):
 def place_order(request):
     bakery = Bakery.objects.filter(active=True).first()
     product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+
     if request.method == 'POST':
         product = get_object_or_404(Products, id=request.POST['product_id'])
         address = get_object_or_404(Address, id=request.POST['address_id'])
@@ -242,8 +268,15 @@ def place_order(request):
             quantity=quantity,
         )
 
-        return render(request, "order_success.html",
-                      {'amount': total_amount, 'bakery': bakery, 'product_categories': product_categories, })
+        # Clear session data
+        if 'order_data' in request.session:
+            del request.session['order_data']
+
+        return render(request, "order_success.html", {
+            'amount': total_amount,
+            'bakery': bakery,
+            'product_categories': product_categories,
+        })
 
 
 def get_orders(request):

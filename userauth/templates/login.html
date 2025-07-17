@@ -5,13 +5,17 @@
     <title>User Login</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
-<body class="min-h-screen bg-[#f8f4ee] text-[#c6922e] flex items-center justify-center px-4 py-12">
+<body class="bg-[#f8f4ee] text-[#c6922e] flex items-center justify-center px-4 py-8">
 
 <!-- Back Button -->
 <div class="absolute top-6 right-6">
     <a href="{% url 'home' %}"
        class="flex items-center text-blue-600 hover:text-blue-800 border border-blue-500 px-3 py-1.5 rounded transition duration-150">
-        ← Back
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+        </svg>
+        Back
     </a>
 </div>
 
@@ -48,7 +52,7 @@
                    required>
             <button type="button" onclick="togglePassword('id_password', this)"
                     class="absolute right-3 top-9 text-sm text-gray-500 hover:text-gray-800 focus:outline-none">
-                👁️
+                Show
             </button>
         </div>
 
@@ -71,10 +75,10 @@
         const input = document.getElementById(fieldId);
         if (input.type === "password") {
             input.type = "text";
-            button.innerText = "🙈";
+            button.innerText = "Hide";
         } else {
             input.type = "password";
-            button.innerText = "👁️";
+            button.innerText = "Show";
         }
     }
 </script>

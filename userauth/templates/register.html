@@ -5,13 +5,17 @@
     <title>Register</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
-<body class="bg-[#f8f4ee] text-[#c6922e] min-h-screen flex items-center justify-center px-4 py-8">
+<body class="bg-[#f8f4ee] text-[#c6922e] flex items-center justify-center px-4 py-8">
 
 <!-- Back Button -->
 <div class="absolute top-6 right-6">
     <a href="{% url 'home' %}"
        class="flex items-center text-blue-600 hover:text-blue-800 border border-blue-500 px-3 py-1.5 rounded transition duration-150">
-        ← Back
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+        </svg>
+        Back
     </a>
 </div>
 
@@ -32,7 +36,6 @@
     <form method="post" class="space-y-5">
         {% csrf_token %}
         {{ form.non_field_errors }}
-
         {% for field in form %}
         <div class="relative">
             <label for="{{ field.id_for_label }}" class="block text-sm font-semibold mb-1 text-gray-700">
@@ -47,7 +50,7 @@
             <button type="button"
                     onclick="togglePassword('{{ field.id_for_label }}', this)"
                     class="absolute right-2 top-[38px] text-xs text-gray-500 hover:text-gray-800 focus:outline-none">
-                👁️
+                Show
             </button>
             {% endif %}
         </div>
@@ -71,7 +74,7 @@
         const input = document.getElementById(fieldId);
         if (input) {
             input.type = input.type === "password" ? "text" : "password";
-            button.textContent = input.type === "password" ? "👁️" : "🙈";
+            button.textContent = input.type === "password" ? "Show" : "Hide";
         }
     }
 </script>
