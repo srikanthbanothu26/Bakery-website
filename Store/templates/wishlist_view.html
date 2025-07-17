@@ -1,65 +1,75 @@
 {% extends 'base.html' %}
 
 {% block main_content %}
-<main class="bg-gray-100 p-6">
+<main class="bg-gray-100 p-4 sm:p-6">
     <div class="max-w-6xl mx-auto">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">My Wishlists ({{ wishlists|length }})</h1>
-            <div class="flex justify-end mb-4 px-4">
-                <a href="{{ request.META.HTTP_REFERER }}"
-                   class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor"
-                         class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
-                    </svg>
-                    Back
-                </a>
-            </div>
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 sm:gap-0">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+                My Wishlists ({{ wishlists|length }})
+            </h1>
+            <a href="{{ request.META.HTTP_REFERER }}"
+               class="flex items-center text-sm border px-3 py-1.5 rounded hover:bg-gray-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+                </svg>
+                Back
+            </a>
         </div>
+
         {% if wishlists %}
+        <!-- Product Cards -->
         <div class="space-y-4">
             {% for wishlist in wishlists %}
-            <div class="bg-white shadow-sm rounded-md p-4 flex items-start gap-4 hover:shadow-md transition">
+            <div class="bg-white rounded-lg shadow p-4 flex flex-col sm:flex-row gap-4 hover:shadow-md transition">
 
                 <!-- Product Image -->
-                <a href="{% url 'view_product' wishlist.product.id %}">
+                <a href="{% url 'view_product' wishlist.product.id %}"
+                   class="w-full sm:w-32 flex-shrink-0">
+                    {% if wishlist.product.image %}
                     <img src="{{ wishlist.product.image.url }}" alt="{{ wishlist.product.name }}"
-                         class="w-32 h-32 object-contain border rounded">
+                         class="w-full h-32 object-contain border rounded">
+                    {% else %}
+                    <img src="{{ bakery.logo.url }}" alt="{{ wishlist.product.name }}"
+                         class="w-full h-32 object-contain border rounded">
+                    {% endif %}
                 </a>
 
-                <!-- Product Details -->
-                <div class="flex-1">
-                    <h2 class="text-lg font-semibold text-gray-800 hover:text-blue-600 text-red-600">
-                        <a href="{% url 'view_product' wishlist.product.id %}">
-                            {{ wishlist.product.name }}
-                        </a>
-                    </h2>
-                    {% if wishlist.product.price %}
-                    <p class="text-lg text-green-700 font-bold mt-2">
-                        {{ bakery.country.currency_symbol }} {{ wishlist.product.price }}
-                    </p>
-                    {% endif %}
+                <!-- Product Info -->
+                <div class="flex-1 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-800 hover:text-blue-600">
+                            <a href="{% url 'view_product' wishlist.product.id %}">
+                                {{ wishlist.product.name }}
+                            </a>
+                        </h2>
+                        {% if wishlist.product.price %}
+                        <p class="text-green-700 font-semibold mt-1">
+                            {{ bakery.country.currency_symbol }} {{ wishlist.product.price }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Buttons (on mobile stacked vertically) -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mt-4 sm:mt-0">
+                        <button class="remove-wishlist text-red-600 hover:underline text-sm"
+                                data-product-id="{{ wishlist.product.id }}">
+                            Remove
+                        </button>
+
+                        <button class="add-to-cart bg-yellow-400 text-sm font-medium px-4 py-2 rounded hover:bg-yellow-500 transition"
+                                data-product-id="{{ wishlist.product.id }}">
+                            Add to Cart
+                        </button>
+                    </div>
                 </div>
-
-                <!-- Actions -->
-                <div class="flex flex-col items-end justify-between h-full">
-                    <button class="remove-wishlist text-red-600 hover:underline text-sm"
-                            data-product-id="{{ wishlist.product.id }}">
-                        Remove
-                    </button>
-
-                    <button class="add-to-cart mt-4 bg-yellow-400 text-sm font-medium px-4 py-2 rounded hover:bg-yellow-500"
-                            data-product-id="{{ wishlist.product.id }}">
-                        Add to Cart
-                    </button>
-                </div>
-
             </div>
             {% endfor %}
         </div>
         {% else %}
+        <!-- Empty Message -->
         <div class="text-center mt-20 text-gray-500 text-lg">
             Your wishlist is empty. Start adding your favorite products!
         </div>

@@ -1,130 +1,186 @@
 {% load static %}
-<html lang="en">
+<html lang="en" x-data="{ navOpen: false }" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% block title %}
-        {{ bakery.name }}
-        {% endblock %}</title>
-    <link href="{{ bakery.logo.url }}" rel="icon" type="image/x-icon"/>
-    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Leaflet CSS and JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ bakery.name }}{% endblock %}</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="{{ bakery.logo.url }}" type="image/x-icon">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- AlpineJS -->
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
           integrity="sha384-qf97I+0o3+D7fK2VFcFhJjRpKP5jWfD5zNhm1Tjo+T8TziqUDG+ThQo2rhJlF+8u" crossorigin="anonymous">
+    <!-- Leaflet (optional, if you use maps later) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 </head>
-<body class="scroll-smooth bg-white text-gray-800">
-<!-- Social Icons -->
-<header class="h-28">
-    <div class="flex justify-end w-full items-center border-b h-10 bg-white px-6">
-        <div class="flex gap-4 mt-3">
-            <a href="{{ bakery.instagram }}" target="_blank" class="text-pink-600 hover:text-pink-800 transition">
-                <i class="fab fa-instagram text-xl"></i>
+
+<body class="bg-white text-gray-800">
+
+<!-- Header -->
+<header class="shadow-sm border-b z-40 sticky top-0 bg-white" x-data="{ navOpen: false }">
+    <!-- Social Bar -->
+    <div class="flex justify-end items-center h-10 px-6 border-b bg-white">
+        <div class="flex gap-4 text-pink-600 text-lg">
+            <a href="{{ bakery.instagram }}" target="_blank" class="hover:text-pink-800 transition">
+                <i class="fab fa-instagram"></i>
             </a>
             <a href="{{ bakery.twitter }}" target="_blank" class="text-blue-500 hover:text-blue-700 transition">
-                <i class="fab fa-twitter text-xl"></i>
+                <i class="fab fa-twitter"></i>
             </a>
         </div>
     </div>
 
-    <!-- Navigation Bar -->
-    <div class="grid grid-cols-3 items-center px-4 h-16 border-b bg-[#f8f4ee] text-[#c6922e] font-semibold shadow-sm">
-        <!-- Logo -->
-        <div class="text-xl tracking-wide font-bold flex items-center gap-2">
-            <a href="{% url 'home' %}">
-                <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="h-14 w-full">
-            </a>
-            <a href="{% url 'home' %}" class="hover:text-[#b57c1b] transition">{{ bakery.name.upper }}</a>
-        </div>
+    <!-- Navbar -->
+    <div class="bg-[#f8f4ee] text-[#c6922e] font-semibold px-4">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo & Site Name -->
+            <div class="flex items-center gap-2">
+                <a href="{% url 'home' %}">
+                    <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="h-14 w-auto"/>
+                </a>
+                <a href="{% url 'home' %}"
+                   class="hover:text-[#b57c1b] text-lg sm:text-xl md:text-2xl font-bold transition">
+                    {{ bakery.name.upper }}
+                </a>
+            </div>
 
-        <!-- Navigation Links -->
-        <div class="flex gap-4 text-sm justify-center">
-            <a href="{% url 'home' %}" class="hover:text-[#b57c1b] transition">Home</a>
-            <a href="{% url 'about' %}" class="hover:text-[#b57c1b] transition">About Us</a>
-            <!-- Order Now Dropdown -->
-            <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="hover:text-[#b57c1b] transition flex items-center">
-                    Order Now
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            <!-- Mobile Hamburger -->
+            <div class="sm:hidden">
+                <button @click="navOpen = !navOpen" aria-label="Toggle Navigation">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
-                <div x-show="open" x-transition
-                     class="absolute mt-2 bg-white border rounded shadow-md z-50 text-gray-700">
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden sm:flex items-center gap-4 text-sm">
+                {% if user.is_superuser %}
+                <a href="{% url 'view_users' %}" class="hover:text-[#b57c1b]">Users</a>
+                {% endif %}
+                <a href="{% url 'home' %}" class="hover:text-[#b57c1b]">Home</a>
+                <a href="{% url 'about' %}" class="hover:text-[#b57c1b]">About Us</a>
+
+                <!-- Order Now Dropdown -->
+                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open" class="flex items-center gap-1 hover:text-[#b57c1b]">
+                        Order Now
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div x-show="open" x-transition
+                         class="absolute bg-white border rounded shadow mt-2 w-48 z-50 text-gray-700">
+                        {% for category in product_categories %}
+                        <a href="{% url 'view_products' category.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                            {{ category.name }} ({{ category.product_count }})
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <a href="{% url 'wishlists' %}" class="hover:text-[#b57c1b]">
+                    <i class="fas fa-heart"></i>
+                </a>
+
+                <a href="{% url 'carts' %}"
+                   class="flex items-center gap-2 border border-[#c6922e] px-3 py-1 rounded hover:bg-[#e7d5b5] transition">
+                    <i class="fas fa-shopping-cart"></i> My Carts
+                </a>
+
+                {% if user.is_authenticated %}
+                <!-- Profile Dropdown -->
+                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open" class="flex items-center gap-1 hover:text-[#b57c1b]">
+                        <i class="fas fa-user-circle text-lg"></i>
+                        <span class="mb-1">{{ user.username }}</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div x-show="open" x-transition
+                         class="absolute right-0 bg-white border rounded shadow-md mt-2 w-48 z-50 text-gray-700">
+                        <a href="{% url 'user_info' user.id %}" class="block px-4 py-2 hover:bg-gray-100">Profile</a>
+                        <a href="{% url 'orders' %}" class="block px-4 py-2 hover:bg-gray-100">My Orders</a>
+                        <a href="{% url 'user_address' %}" class="block px-4 py-2 hover:bg-gray-100">Manage Address</a>
+                        <a href="{% url 'user_logout' %}"
+                           class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
+                        <a href="#footer" class="block px-4 py-2 hover:bg-gray-100">Contact Us</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'user_register' %}" class="hover:text-[#b57c1b]">Sign Up</a>
+                <a href="{% url 'user_login' %}" class="hover:text-[#b57c1b]">Login</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Mobile Nav -->
+        <div x-show="navOpen" x-transition class="sm:hidden mt-2 px-2 pb-4 text-[#c6922e] text-sm space-y-2">
+            <a href="{% url 'home' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Home</a>
+            <a href="{% url 'about' %}" class="block px-2 py-1 hover:text-[#b57c1b]">About Us</a>
+
+            <!-- Order Now Dropdown -->
+            <div x-data="{ open: false }">
+                <button @click="open = !open"
+                        class="flex items-center gap-1 px-2 py-1 hover:text-[#b57c1b] w-full text-left">
+                    Order Now
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <div x-show="open" x-transition class="ml-4 border-l border-gray-200 pl-2">
                     {% for category in product_categories %}
-                    <a href="{% url 'view_products' category.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                    <a href="{% url 'view_products' category.id %}" class="block py-1 hover:text-[#b57c1b]">
                         {{ category.name }} ({{ category.product_count }})
                     </a>
                     {% endfor %}
                 </div>
             </div>
-            {% if user.is_superuser or user.is_staff %}
-            <a href="{% url 'pos_view'%}" class="hover:text-[#b57c1b]">
-                Point Of Sale
-            </a>
-            {% endif %}
-            <a href="#footer" class="hover:text-[#b57c1b] transition">Contact Us</a>
-        </div>
 
-        <!-- Right Side Actions -->
-        <div class="flex items-center gap-4 justify-end text-sm">
-            {% if user.is_superuser%}
-            <a href="{% url 'view_users'%}">
-                Users
-            </a>
+            {% if user.is_superuser or user.is_staff %}
+            <a href="{% url 'pos_view' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Point Of Sale</a>
             {% endif %}
-            <a href="{% url 'wishlists' %}" class="hover:text-[#b57c1b] transition">
-                <i class="fas fa-heart text-lg"></i>
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'user_info' user.id %}" class="block px-2 py-1 hover:text-[#b57c1b]">Profile</a>
+            <a href="{% url 'wishlists' %}" class="flex items-center gap-2  block px-2 py-1 hover:text-[#b57c1b]">
+                <i class="fas fa-heart"></i>Wishlists
             </a>
 
             <a href="{% url 'carts' %}"
-               class="flex items-center gap-2 border border-[#c6922e] px-3 py-1 rounded hover:bg-[#e7d5b5] transition">
+               class="flex items-center gap-2 block px-2 py-1 hover:text-[#b57c1b]">
                 <i class="fas fa-shopping-cart"></i> My Carts
             </a>
-
-            {% if user.is_authenticated %}
-            <!-- Profile Dropdown -->
-            <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="flex items-center gap-1 hover:text-[#b57c1b] transition">
-                    <i class="fas fa-user-circle text-lg">
-                    </i>
-                    <b class="mb-1">{{ user.username }}</b>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div x-show="open" x-transition
-                     class="absolute right-0 bg-white border rounded shadow-lg z-50">
-                    <a href="{% url 'user_info' user.id %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Profile</a>
-                    <a href="{% url 'orders' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">
-                        My Orders
-                    </a>
-                    <a href="{% url 'user_address' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Manage
-                        Address</a>
-                    <a href="{% url 'user_logout' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Logout</a>
-                </div>
-            </div>
+            <a href="{% url 'orders' %}" class="block px-2 py-1 hover:text-[#b57c1b]">My Orders</a>
+            <a href="{% url 'user_address' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Manage Address</a>
+            <a href="{% url 'user_logout' %}" class="block px-2 py-1 hover:text-red-600 text-red-600">Logout</a>
             {% else %}
-            <a href="{% url 'user_register' %}" class="hover:text-[#b57c1b] transition">Sign Up</a>
-            <a href="{% url 'user_login' %}" class="hover:text-[#b57c1b] transition">Login</a>
+            <a href="{% url 'user_register' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Sign Up</a>
+            <a href="{% url 'user_login' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Login</a>
             {% endif %}
+
+            <a href="#footer" class="block px-2 py-1 hover:text-[#b57c1b]">Contact Us</a>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-{% block main_content %}
-{% endblock main_content %}
+<!-- Page Content -->
+<main>
+    {% block main_content %}
+    {% endblock main_content %}
+</main>
 
-<!-- Scripts -->
+<!-- Optional Scripts -->
 {% block scripts %}
 <script>
+    // Additional JS if needed
 </script>
 {% endblock %}
+
 </body>
 </html>

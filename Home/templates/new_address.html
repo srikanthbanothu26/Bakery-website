@@ -2,28 +2,27 @@
 {% block title %}Add New Address{% endblock %}
 
 {% block main_content %}
-<div class="bg-[#f8f4ee] px-6 py-6 w-full">
+<div class="bg-[#f8f4ee] px-4 md:px-6 py-6 w-full">
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-3xl font-extrabold text-[#c6922e]">Add New Address</h2>
+        <h2 class="text-2xl md:text-3xl font-extrabold text-[#c6922e]">Add New Address</h2>
         <a href="{{ request.META.HTTP_REFERER }}"
-           class="text-blue-600 hover:text-blue-800 border border-2 px-4 py-2 rounded transition">
+           class="text-blue-600 hover:text-blue-800 border px-4 py-2 rounded transition">
             Back
         </a>
     </div>
 
     <!-- Form Container -->
-    <div class="bg-white w-full border border-[#e0caa4] rounded-md shadow-md text-[#c6922e] max-h-[70vh] overflow-y-auto">
-        <form method="POST" class="space-y-2 p-2" enctype="multipart/form-data">
+    <div class="bg-white border border-[#e0caa4] rounded-md shadow-md max-h-[70vh] overflow-auto text-[#c6922e]">
+        <form method="POST" class="space-y-4 p-4 md:p-6" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.non_field_errors }}
 
             {% for field in form %}
             <div class="flex flex-col">
-                <label for="{{ field.id_for_label }}" class="text-sm font-semibold mb-1">
+                <label for="{{ field.id_for_label }}" class="text-sm font-semibold mb-1 text-gray-700">
                     {{ field.label }}
                 </label>
-
                 {{ field }}
                 <script>
                     document.addEventListener("DOMContentLoaded", () => {
@@ -31,12 +30,12 @@
                         if (el && el.tagName !== "SELECT" && el.type !== "file") {
                             el.classList.add(
                                 "w-full", "bg-transparent", "border-0", "border-b", "border-gray-400",
-                                "focus:outline-none", "focus:border-[#c6922e]", "py-2", "px-1", "text-gray-800"
+                                "focus:outline-none", "focus:border-[#c6922e]",
+                                "py-2", "px-1", "text-gray-800", "transition"
                             );
                         }
                     });
                 </script>
-
                 {% if field.errors %}
                 <p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>
                 {% endif %}
@@ -44,10 +43,10 @@
             {% endfor %}
 
             <button type="submit"
-                    class="w-full bg-[#c6922e] hover:bg-yellow-600 text-white font-semibold py-2 rounded shadow-md transition">
+                    class="w-full bg-[#c6922e] hover:bg-yellow-600 text-white font-semibold py-2 rounded shadow transition">
                 Save Address
             </button>
         </form>
     </div>
 </div>
-{% endblock %}
+{% endblock main_content %}

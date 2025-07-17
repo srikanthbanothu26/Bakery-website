@@ -1,60 +1,65 @@
 {% extends 'base.html' %}
 
 {% block main_content %}
-<main class="bg-gray-100 p-6">
+<main class="bg-gray-100 p-4 sm:p-6">
     <div class="max-w-6xl mx-auto">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">My Carts ({{ carts|length }})</h1>
-            <div class="flex justify-end mb-4 px-4">
-                <a href="{{ request.META.HTTP_REFERER }}"
-                   class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor"
-                         class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
-                    </svg>
-                    Back
-                </a>
-            </div>
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+                My Carts ({{ carts|length }})
+            </h1>
+            <a href="{{ request.META.HTTP_REFERER }}"
+               class="flex items-center text-sm border px-3 py-1.5 rounded hover:bg-gray-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+                </svg>
+                Back
+            </a>
         </div>
+
         {% if carts %}
+        <!-- Cart Items -->
         <div class="space-y-4">
             {% for cart in carts %}
-            <div class="bg-white shadow-sm rounded-md p-4 flex items-start gap-4 hover:shadow-md transition">
+            <div class="bg-white rounded-lg shadow p-4 flex flex-col sm:flex-row gap-4 hover:shadow-md transition">
 
                 <!-- Product Image -->
-                <a href="{% url 'view_product' cart.product.id %}">
+                <a href="{% url 'view_product' cart.product.id %}" class="w-full sm:w-32 flex-shrink-0">
                     <img src="{{ cart.product.image.url }}"
                          alt="{{ cart.product.name }}"
-                         class="w-32 h-32 object-contain border rounded">
+                         class="w-full h-32 object-contain border rounded">
                 </a>
 
                 <!-- Product Details -->
-                <div class="flex-1">
-                    <a href="{% url 'view_product' cart.product.id %}" class="flex items-center">
-                        <h2 class="text-lg font-semibold text-gray-800 hover:text-blue-600 border-b-2 border-blue-600">
-                            {{ cart.product.name }}
-                        </h2>
-                    </a>
-                    {% if cart.product.price %}
-                    <p class="text-lg text-green-700 font-bold mt-2">
-                        {{ bakery.country.currency_symbol }} {{ cart.product.price }}
-                    </p>
-                    {% endif %}
-                </div>
+                <div class="flex-1 flex flex-col justify-between">
+                    <div>
+                        <a href="{% url 'view_product' cart.product.id %}">
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-800 hover:text-blue-600">
+                                {{ cart.product.name }}
+                            </h2>
+                        </a>
+                        {% if cart.product.price %}
+                        <p class="text-green-700 font-semibold mt-2">
+                            {{ bakery.country.currency_symbol }} {{ cart.product.price }}
+                        </p>
+                        {% endif %}
+                    </div>
 
-                <!-- Actions -->
-                <div class="flex flex-col items-end justify-between h-full">
-                    <button class="remove-cart text-red-600 hover:underline text-sm"
-                            data-product-id="{{ cart.product.id }}">
-                        Remove
-                    </button>
+                    <!-- Remove Button -->
+                    <div class="mt-4 sm:mt-0 sm:self-end">
+                        <button class="remove-cart text-sm text-red-600 hover:underline transition"
+                                data-product-id="{{ cart.product.id }}">
+                            Remove
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
+        <!-- Empty Message -->
         <div class="text-center mt-20 text-gray-500 text-lg">
             Your cart is empty. Start adding your favorite products!
         </div>
@@ -79,4 +84,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock main_content %}

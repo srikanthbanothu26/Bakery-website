@@ -1,25 +1,32 @@
 {% extends 'base.html' %}
 
 {% block main_content %}
-<main class="p-10 w-full">
-    <div class="flex justify-end mb-4 px-4 items-center">
+<main class="p-6 sm:p-10 w-full">
+    <!-- Back Button -->
+    <div class="flex justify-end mb-6">
         <a href="{{ request.META.HTTP_REFERER }}"
-           class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                 stroke="currentColor"
-                 class="size-4">
+           class="flex items-center gap-2 text-sm border border-gray-300 px-4 py-1.5 rounded hover:bg-gray-100 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                 stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
             </svg>
-            Back
+            <span>Back</span>
         </a>
     </div>
-    <div class="grid grid-cols-2 gap-4">
-        <div class="text-sm italic subpixel-antialiased">
+
+    <!-- About and Logo Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-gray-900 p-6 rounded-lg shadow">
+        <!-- About Text -->
+        <div class="text-gray-700 dark:text-gray-200 text-sm leading-relaxed space-y-2">
             {{ bakery.about|safe }}
         </div>
-        <div>
-            <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}">
+
+        <!-- Logo -->
+        <div class="flex justify-center items-center">
+            <img src="{{ bakery.logo.url }}"
+                 alt="{{ bakery.name }}"
+                 class="max-w-full h-auto object-contain rounded shadow-md"/>
         </div>
     </div>
 </main>

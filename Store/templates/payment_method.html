@@ -2,13 +2,13 @@
 {% block title %}Payment{% endblock %}
 
 {% block main_content %}
-<div class="max-w-xl mx-auto mt-10 bg-white shadow p-8 rounded-lg">
-    <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-gray-800 px-6 py-4 border-b">Select Payment Method</h2>
-        <a href="{{ request.META.HTTP_REFERER }}" class="flex items-center border-2 px-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                 stroke="currentColor"
-                 class="size-4">
+<div class="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-xl overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between bg-gray-100 px-6 py-4 border-b">
+        <h2 class="text-xl font-semibold text-gray-800">Select Payment Method</h2>
+        <a href="{{ request.META.HTTP_REFERER }}" class="flex items-center text-sm text-gray-600 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
             </svg>
@@ -16,7 +16,8 @@
         </a>
     </div>
 
-    <form method="POST" action="{% url 'place_order' %}">
+    <!-- Payment Form -->
+    <form method="POST" action="{% url 'place_order' %}" class="p-6 space-y-6">
         {% csrf_token %}
         <input type="hidden" name="product_id" value="{{ product.id }}">
         <input type="hidden" name="quantity" value="{{ quantity }}">
@@ -24,15 +25,18 @@
         <input type="hidden" name="address_id" value="{{ address.id }}">
         <input type="hidden" name="weight" value="{{ weight }}">
 
-
-        <label class="flex items-center gap-2 mb-6">
-            <input type="radio" name="payment_method" value="COD" required>
-            Cash on Delivery ({{ bakery.country.currency_symbol }} {{ total_amount }})
+        <!-- Radio option -->
+        <label class="flex items-center space-x-2 text-gray-700 text-base">
+            <input type="radio" name="payment_method" value="COD" class="accent-green-600" required>
+            <span>Cash on Delivery</span>
+            <span class="text-sm text-gray-500">({{ bakery.country.currency_symbol }} {{ total_amount }})</span>
         </label>
 
-        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700">
+        <!-- Submit button -->
+        <button type="submit"
+                class="w-full bg-green-600 text-white font-medium py-3 rounded-md hover:bg-green-700 transition duration-200">
             Pay {{ bakery.country.currency_symbol }} {{ total_amount }} on Delivery
         </button>
     </form>
 </div>
-{% endblock %}
+{% endblock main_content %}

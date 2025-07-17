@@ -4,107 +4,122 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block main_content %}
-<div class="flex flex-col-reverse sm:flex-row-reverse mr-4 mt-2">
-    <a href="{{ request.META.HTTP_REFERER }}" class="flex items-center border-2 px-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-             stroke="currentColor"
-             class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+<!-- Back Button -->
+<div class="flex justify-end mt-4 mr-4">
+    <a href="{{ request.META.HTTP_REFERER }}"
+       class="flex items-center border-2 border-[#c6922e] text-[#c6922e] px-3 py-1 rounded hover:bg-[#f8f4ee]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12l3.75-3.75M3 12h18"/>
         </svg>
         Back
     </a>
 </div>
-<div class="flex flex-col md:flex-row justify-center gap-10">
-    <!-- Product Details -->
-    <div class="flex flex-col justify-between">
-        <div>
-            <h1 class="text-[#c6922e] text-3xl font-bold mb-4">{{ product.name }}</h1>
 
-            <!-- Quantity Selector -->
-            <div class="flex items-center gap-3 mb-3">
+<!-- Product Section -->
+<div class="container mx-auto mt-8 px-4 flex flex-col md:flex-row gap-10 items-start">
+    <!-- Product Image -->
+    <div class="w-full md:w-1/2 flex justify-center flex-col">
+        <div class="w-full md:w-1/2 flex justify-center relative">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                 class="w-full max-w-sm rounded-xl shadow-md object-cover">
+            {% else %}
+            <img src="{{ bakery.logo.url }}" alt="Default Logo"
+                 class="w-full max-w-sm rounded-xl shadow-md object-cover">
+            {% endif %}
+
+            <!-- Wishlist Heart Icon -->
+            <div class="absolute top-2 right-2 z-10">
+                <button class="wishlist-toggle" data-product-id="{{ product.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="{% if product.id in wishlist_product_ids %}red{% else %}none{% endif %}"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         class="w-8 h-8 hover:scale-110 transition-transform duration-150"
+                         data-state="{% if product.id in wishlist_product_ids %}added{% else %}not-added{% endif %}">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75
+                      3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Product Price -->
+            <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-10">
+                <div class="bg-black bg-opacity-70 text-white text-sm px-3 py-1 rounded-full">
+                    {{ bakery.country.currency_symbol }} {{ product.price }}
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-2 xl:w-1/2 md:w-1/2 lg:w-1/2">
+            <!-- Cart -->
+            <button class="cart-toggle flex-1 bg-[#f8f4ee] text-[#c6922e] px-4 py-2 rounded flex items-center justify-center gap-2"
+                    data-product-id="{{ product.id }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218
+                               c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0
+                               .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+                </svg>
+                {% if product.id in cart_product_ids %}
+                Added to Cart
+                {% else %}
+                Add to Cart
+                {% endif %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Product Info & Actions -->
+    <div class="w-full md:w-1/2 space-y-4 mb-10">
+        <!-- Title -->
+        <h1 class="text-[#c6922e] text-3xl font-bold">{{ product.name }}</h1>
+
+        <!-- Quantity & Weight -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
+            <!-- Quantity -->
+            <div class="flex items-center gap-3">
                 <button id="decrease" class="px-4 py-1 rounded border border-gray-400">-</button>
                 <p id="qty" class="font-semibold border border-gray-400 px-4 py-1 rounded">1</p>
                 <button id="increase" class="px-4 py-1 rounded border border-gray-400">+</button>
             </div>
 
-            <!-- Display Amount -->
-            <p class="text-lg text-gray-800">Amount: {{ bakery.country.currency_symbol }} <span id="display_total">{{ product.price }}</span>
-            </p>
+            <!-- Weight Select -->
+            <div class="relative flex-1 min-w-0">
+                <select id="order_weight"
+                        class="appearance-none w-full bg-white text-gray-800 border border-[#c6922e] rounded-lg px-4 py-2 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c6922e] text-sm truncate">
+                    <option value="250gm">250 GM</option>
+                    <option value="500gm">500 GM</option>
+                    <option value="1kg" selected>1 KG</option>
+                    <option value="1500gm">1.5 KG</option>
+                    <option value="2kg">2 KG</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[#c6922e]">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M7 7l3-3 3 3m0 6l-3 3-3-3"/>
+                    </svg>
+                </div>
+            </div>
         </div>
 
-        <!-- Order Now Form -->
-        <form method="POST" action="{% url 'start_order' product.id %}" class="mt-6">
+        <!-- Price -->
+        <p class="text-xl font-medium text-gray-700">
+            Total: {{ bakery.country.currency_symbol }}
+            <span id="display_total">{{ product.price }}</span>
+        </p>
+
+        <!-- Order Form -->
+        <form method="POST" action="{% url 'start_order' product.id %}" class="space-y-3">
             {% csrf_token %}
-
-            <!-- Weight Selection -->
-            <label for="order_weight" class="block mb-1">Select Weight:</label>
-            <select name="weight" id="order_weight" class="w-full border rounded p-2 mb-3">
-                <option value="250gm">250 GM</option>
-                <option value="500gm">500 GM</option>
-                <option value="1kg" selected>1 KG</option>
-                <option value="1500gm">1.5 KG</option>
-                <option value="2kg">2 KG</option>
-            </select>
-
-            <!-- Hidden Inputs -->
             <input type="hidden" name="quantity" id="order_qty" value="1">
             <input type="hidden" name="total_amount" id="order_total_amount" value="{{ product.price }}">
             <button type="submit"
-                    class="w-full bg-[#c6922e] text-white py-2 rounded hover:bg-[#b07d1e] transition">
+                    class="w-full bg-[#c6922e] text-white py-2 rounded hover:bg-[#b07d1e] transition font-semibold">
                 Order Now
             </button>
         </form>
-    </div>
-
-    <!-- Product Image & Actions -->
-    <div class="flex flex-col gap-4">
-        {% if product.image %}
-        <img src="{{ product.image.url }}"
-             alt="{{ product.name }}"
-             class="h-96 w-64 object-cover rounded shadow-md relative">
-        {% else %}
-        <img src="{{ bakery.logo.url }}"
-             alt="Default Logo"
-             class="h-96 w-64 rounded shadow-md relative">
-        {% endif %}
-
-        <!-- Add to Cart -->
-        <button class="cart-toggle bg-[#f8f4ee] text-[#c6922e] px-6 py-2 rounded-md flex items-center gap-2 justify-center"
-                data-product-id="{{ product.id }}">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 fill="none"
-                 viewBox="0 0 24 24"
-                 stroke-width="1.5"
-                 stroke="currentColor"
-                 class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218
-                       c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0
-                       .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
-            </svg>
-            {% if product.id in cart_product_ids %}
-            Added in Cart
-            {% else %}
-            Add to Cart
-            {% endif %}
-        </button>
-
-        <!-- Wishlist -->
-        <button class="wishlist-toggle absolute"
-                data-product-id="{{ product.id }}">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 fill="{% if product.id in wishlist_product_ids %}red{% else %}none{% endif %}"
-                 viewBox="0 0 24 24"
-                 stroke-width="1.5"
-                 stroke="currentColor"
-                 class="size-8"
-                 data-state="{% if product.id in wishlist_product_ids %}added{% else %}not-added{% endif %}">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75
-                   3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
-            </svg>
-        </button>
     </div>
 </div>
 {% endblock main_content %}
@@ -112,7 +127,6 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-
         function showToast(msg) {
             const toast = document.createElement('div');
             toast.textContent = msg;
@@ -128,12 +142,10 @@
                     showToast(data.message);
                     setTimeout(() => window.location.reload(), 800);
                 })
-                .catch(err => {
-                    console.error(err);
-                    showToast('Something went wrong');
-                });
+                .catch(() => showToast('Something went wrong'));
         }
 
+        // Wishlist toggle
         document.querySelectorAll('.wishlist-toggle').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.preventDefault();
@@ -147,6 +159,7 @@
             });
         });
 
+        // Cart toggle
         document.querySelectorAll('.cart-toggle').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.preventDefault();
@@ -156,7 +169,7 @@
             });
         });
 
-        // DOM elements
+        // Quantity & Price Logic
         const increaseBtn = document.getElementById('increase');
         const decreaseBtn = document.getElementById('decrease');
         const qtyEl = document.getElementById('qty');
@@ -169,21 +182,19 @@
         let qty = 1;
 
         function getWeightMultiplier(weight) {
-            switch (weight) {
-                case '250gm': return 0.25;
-                case '500gm': return 0.5;
-                case '1kg': return 1;
-                case '1500gm': return 1.5;
-                case '2kg': return 2;
-                default: return 1;
-            }
+            const map = {
+                '250gm': 0.25,
+                '500gm': 0.5,
+                '1kg': 1,
+                '1500gm': 1.5,
+                '2kg': 2
+            };
+            return map[weight] || 1;
         }
 
         function updateTotal() {
-            const weight = weightSelect.value;
-            const multiplier = getWeightMultiplier(weight);
+            const multiplier = getWeightMultiplier(weightSelect.value);
             const total = unitPrice * multiplier * qty;
-
             totalAmountInput.value = total.toFixed(2);
             displayTotal.textContent = total.toFixed(2);
             qtyInput.value = qty;
@@ -196,16 +207,12 @@
         });
 
         decreaseBtn.addEventListener('click', () => {
-            if (qty > 1) {
-                qty -= 1;
-                updateTotal();
-            }
+            if (qty > 1) qty -= 1;
+            updateTotal();
         });
 
         weightSelect.addEventListener('change', updateTotal);
-
-        // Initial total setup
-        updateTotal();
+        updateTotal(); // initialize
     });
 </script>
 {% endblock %}

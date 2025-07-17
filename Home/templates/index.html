@@ -1,28 +1,44 @@
 {% extends 'showcase_images.html' %}
 {% load static %}
 {% block index %}
-<main class="flex flex-col gap-2">
-    <div class="flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+<main class="flex flex-col gap-4 px-4 py-6">
+    <!-- Header -->
+    <div class="flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke-width="1.5"
+             stroke="currentColor"
+             class="w-6 h-6 text-[#c6922e]">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993
+                     1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125
+                     1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0
+                     1 5.513 7.5h12.974c.576 0 1.059.435 1.119
+                     1.007ZM8.625 10.5a.375.375 0 1 1-.75
+                     0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1
+                     1-.75 0 .375.375 0 0 1 .75 0Z"/>
         </svg>
-        <h1 class="text-2xl text-center italic text-[#c6922e] border-b-2 p-2 font-bold">
+        <h1 class="text-2xl italic text-[#c6922e] font-bold border-b-2 border-[#c6922e] pb-1">
             Shop By Category
         </h1>
     </div>
 
-    <div class="flex items-center justify-center w-full">
-        <div class="grid grid-cols-5 gap-10">
+    <!-- Categories Grid -->
+    <div class="flex justify-center w-full">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full max-w-6xl">
             {% for x in product_categories %}
-            <div class="border-2 flex items-center justify-center p-2 h-16 hover:bg-[#c6922e] hover:text-white bg-[#f8f4ee] text-[#c6922e]">
-                <a href="{% url 'view_products' x.id %}">{{x.name}}</a>
+            <div class="border-2 text-center p-2 h-16 flex items-center justify-center bg-[#f8f4ee] text-[#c6922e] hover:bg-[#c6922e] hover:text-white transition-colors duration-200">
+                <a href="{% url 'view_products' x.id %}" class="w-full h-full flex items-center justify-center">
+                    {{ x.name }}
+                </a>
             </div>
             {% endfor %}
         </div>
     </div>
 </main>
+
 {% block home_content %}
 {% endblock home_content %}
 {% endblock index %}

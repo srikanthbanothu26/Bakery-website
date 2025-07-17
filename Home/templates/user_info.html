@@ -3,104 +3,114 @@
 {% block title %}My Account{% endblock %}
 
 {% block main_content %}
-<div class="flex flex-col-reverse sm:flex-row-reverse">
-    <a href="{{ request.META.HTTP_REFERER }}" class="border-2 border-md cursor-pointer px-2 mr-4">
-        Back
-    </a>
-</div>
-<div class="grid grid-cols-2 justify-center items-center gap-4">
-    <div class="flex flex-col">
-        <div class="bg-white rounded-lg shadow overflow-hidden divide-y divide-gray-200 m-4">
-            <!-- Name -->
-            <div class="flex items-center justify-between px-6 py-2">
-                <div>
-                    <p class="text-sm font-semibold text-gray-600">Name</p>
-                    <p class="text-lg text-gray-900">{{ current_user.name }}</p>
-                </div>
-                <a href="{% url 'edit_user_field' 'name' %}"
-                   class="px-6 py-2 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
-            </div>
+<div class="px-4 sm:px-6 lg:px-8 py-6 max-w-4xl mx-auto">
 
-            <!-- Email -->
-            <div class="flex items-center justify-between px-6 py-2">
-                <div>
-                    <p class="text-sm font-semibold text-gray-600">Email</p>
-                    <p class="text-lg text-gray-900">{{ current_user.email }}</p>
-                </div>
-                <a href="{% url 'edit_user_field' 'email' %}"
-                   class="px-6 py-2 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
-            </div>
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{{ request.META.HTTP_REFERER }}"
+           class="inline-flex items-center text-sm border border-gray-300 px-3 py-1 rounded hover:bg-gray-100">
+            ← Back
+        </a>
+    </div>
 
-            <!-- Phone -->
-            <div class="flex items-center justify-between px-6 py-2">
-                <div>
-                    <p class="text-sm font-semibold text-gray-600">Primary mobile number</p>
-                    <p class="text-lg text-gray-900">{{ current_user.phone }}</p>
-                    <p class="text-xs text-gray-500">Quickly sign in, easily recover passwords and receive security
-                        notifications with this number.</p>
-                </div>
-                <a href="{% url 'edit_user_field' 'phone' %}"
-                   class="px-6 py-2 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
-            </div>
-            <!-- Profile Image -->
-        </div>
-
-
-        {% if request.session.user_lat and request.session.user_lon %}
-        <div class="mt-4 space-y-2">
-
-            <div class="bg-gray-100 p-4 rounded shadow text-sm text-gray-700 space-y-1 m-6">
-                {% if request.session.user_street %}
-                <p><strong>Street:</strong> {{ request.session.user_street }}</p>
-                {% endif %}
-                {% if request.session.user_city %}
-                <p><strong>City:</strong> {{ request.session.user_city }}</p>
-                {% endif %}
-                {% if request.session.user_postcode %}
-                <p><strong>Pincode:</strong> {{ request.session.user_postcode }}</p>
-                {% endif %}
-                {% if request.session.user_lat %}
-                <div class="mt-4 text-sm leading-relaxed text-gray-700">
-                    <p><strong>Neighbourhood:</strong> {{ request.session.user_neighbourhood }}</p>
-                    <p><strong>Suburb:</strong> {{ request.session.user_suburb }}</p>
-                    <p><strong>City:</strong> {{ request.session.user_city }}</p>
-                    <p><strong>District:</strong> {{ request.session.user_city_district }}</p>
-                    <p><strong>County:</strong> {{ request.session.user_county }}</p>
-                    <p><strong>State:</strong> {{ request.session.user_state }}</p>
-                    <p><strong>State District:</strong> {{ request.session.user_state_district }}</p>
-                    <p><strong>Country:</strong> {{ request.session.user_country }}</p>
-                    <p><strong>Pincode:</strong> {{ request.session.user_postcode }}</p>
-                </div>
-                {% endif %}
-            </div>
+    <!-- Profile Image Centered -->
+    <div class="relative mx-auto w-40 h-40 mb-6">
+        {% if current_user.image %}
+        <img src="{{ current_user.image.url }}" alt="User Image"
+             class="rounded-full object-cover w-full h-full shadow border">
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center text-gray-500 bg-gray-100 rounded-full border">
+            No Image
         </div>
         {% endif %}
-    </div>
-    <div class="flex flex-col">
-        <div>
-            <p class="text-sm font-semibold text-gray-600">Profile Image</p>
-            {% if current_user.image %}
-            <img src="{{ current_user.image.url }}" class="h-64 w-96 rounded mt-2 border" alt="User Image">
-            {% else %}
-            <p class="text-gray-500">No image uploaded.</p>
-            {% endif %}
-        </div>
-        <div class="flex justify-center">
+        <div class="text-center mt-3">
             <a href="{% url 'edit_user_field' 'image' %}"
-               class="flex items-center border-2 rounded-md px-4 py-2">Edit</a>
-        </div>
-        <div class="mt-10">
-            <a target="_blank"
-               href="https://www.google.com/maps?q={{ request.session.user_lat }},{{ request.session.user_lon }}"
-               class="text-blue-500 underline hover:text-blue-700 block ml-10">
-                📍 View Current Location
+               class="inline-flex items-center border px-4 py-2 rounded hover:bg-gray-100 text-sm">
+                Edit Profile Image
             </a>
         </div>
+    </div>
 
+    <!-- Grid Info Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Left: User Info -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-lg shadow divide-y divide-gray-200">
+                <!-- Name -->
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600">Name</p>
+                        <p class="text-lg text-gray-900">{{ current_user.name }}</p>
+                    </div>
+                    <a href="{% url 'edit_user_field' 'name' %}"
+                       class="px-4 py-1 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
+                </div>
+
+                <!-- Email -->
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600">Email</p>
+                        <p class="text-lg text-gray-900">{{ current_user.email }}</p>
+                    </div>
+                    <a href="{% url 'edit_user_field' 'email' %}"
+                       class="px-4 py-1 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
+                </div>
+
+                <!-- Phone -->
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600">Primary Mobile Number</p>
+                        <p class="text-lg text-gray-900">{{ current_user.phone }}</p>
+                        <p class="text-xs text-gray-500 mt-1">Used for sign-in, password recovery, and alerts.</p>
+                    </div>
+                    <a href="{% url 'edit_user_field' 'phone' %}"
+                       class="px-4 py-1 rounded-full border border-gray-300 text-sm hover:bg-gray-100">Edit</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Location Info + Map -->
+        <div class="space-y-6">
+            {% if request.session.user_lat and request.session.user_lon %}
+            <div class="bg-gray-100 p-4 rounded shadow text-sm text-gray-700 space-y-1">
+                {% if request.session.user_street %}<p><strong>Street:</strong> {{ request.session.user_street }}</p>
+                {% endif %}
+                {% if request.session.user_city %}<p><strong>City:</strong> {{ request.session.user_city }}</p>
+                {% endif %}
+                {% if request.session.user_postcode %}<p><strong>Pincode:</strong> {{ request.session.user_postcode }}
+            </p>{% endif %}
+                <div class="mt-2 space-y-1">
+                    {% if request.session.user_neighbourhood %}<p><strong>Neighbourhood:</strong>
+                    {{ request.session.user_neighbourhood }}</p>{% endif %}
+                    {% if request.session.user_suburb %}<p><strong>Suburb:</strong> {{ request.session.user_suburb }}
+                </p>{% endif %}
+                    {% if request.session.user_city_district %}<p><strong>District:</strong>
+                    {{ request.session.user_city_district }}</p>{% endif %}
+                    {% if request.session.user_county %}<p><strong>County:</strong> {{ request.session.user_county }}
+                </p>{% endif %}
+                    {% if request.session.user_state %}<p><strong>State:</strong> {{ request.session.user_state }}</p>
+                    {% endif %}
+                    {% if request.session.user_state_district %}<p><strong>State District:</strong>
+                    {{ request.session.user_state_district }}</p>{% endif %}
+                    {% if request.session.user_country %}<p><strong>Country:</strong> {{ request.session.user_country }}
+                </p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Google Maps Link -->
+            <div class="text-center">
+                <a target="_blank"
+                   href="https://www.google.com/maps?q={{ request.session.user_lat }},{{ request.session.user_lon }}"
+                   class="text-blue-600 underline hover:text-blue-800 inline-block">
+                    📍 View Current Location on Google Maps
+                </a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock main_content %}
-
 
 {% block scripts %}
 <script>
@@ -126,12 +136,10 @@
             console.error("Error getting location:", error.message);
         },
         {
-            enableHighAccuracy: true,  // Use GPS/Wi-Fi for best precision
-            timeout: 10000,            // 10 seconds timeout
-            maximumAge: 0              // Don't use cached position
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
         }
     );
 </script>
 {% endblock scripts %}
-
-

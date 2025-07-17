@@ -2,30 +2,31 @@
 {% load static %}
 
 {% block main_content %}
-<div class="relative w-full h-screen overflow-hidden">
-    <!-- Slide wrapper -->
+<div class="relative w-full h-[90vh] overflow-hidden">
+    <!-- Carousel Wrapper -->
     <div id="carousel" class="flex transition-transform duration-700 ease-in-out w-full h-full">
         {% for x in showcase_images|slice:":4" %}
-        <div class="flex-shrink-0 w-screen h-screen relative">
+        <div class="flex-shrink-0 w-full h-full relative">
             <!-- Image -->
             <img src="{{ x.image.url }}" alt="{{ x.name }}"
                  class="absolute inset-0 w-full h-full object-cover"/>
 
-            <!-- Overlay content -->
-            <div class="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center space-y-6 px-4">
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center px-4 space-y-6">
                 <a href="{% url 'view_product' x.id %}"
-                   class="text-white text-5xl font-extrabold drop-shadow-lg border-[#c6922e] border-b-2">
+                   class="text-white text-4xl sm:text-5xl font-extrabold border-b-2 border-[#c6922e] drop-shadow-lg">
                     {{ x.name }}
                 </a>
-                <p class="text-white text-xl tracking-wider">
-                    {{ x.get_weight_display }}-<b>{{ bakery.country.currency_symbol }} {{ x.price }}</b>
+                <p class="text-white text-lg sm:text-xl">
+                    {{ x.get_weight_display }} -
+                    <b>{{ bakery.country.currency_symbol }} {{ x.price }}</b>
                 </p>
                 <a href="{% url 'view_product' x.id %}"
-                   class="flex items-center bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-md shadow-lg font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor" class="size-6">
+                   class="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-md shadow-lg font-semibold transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+                              d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
                     </svg>
                     Order Now
                 </a>
@@ -34,52 +35,58 @@
         {% endfor %}
     </div>
 
-    <!-- Left Arrow -->
+    <!-- Arrows -->
     <button id="leftArrow" onclick="prevSlide()"
-            class="absolute top-1/2 left-5 transform -translate-y-1/2 text-white text-3xl bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full z-10 hidden">
+            class="absolute top-1/2 left-4 transform -translate-y-1/2 text-white text-3xl bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full z-10 hidden"
+            aria-label="Previous Slide">
         &larr;
     </button>
 
-    <!-- Right Arrow -->
-    <button onclick="nextSlide()"
-            class="absolute top-1/2 right-5 transform -translate-y-1/2 text-white text-3xl bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full z-10">
+    <button id="rightArrow" onclick="nextSlide()"
+            class="absolute top-1/2 right-4 transform -translate-y-1/2 text-white text-3xl bg-black bg-opacity-50 hover:bg-opacity-70 p-3 rounded-full z-10"
+            aria-label="Next Slide">
         &rarr;
     </button>
 </div>
-
 {% block index %}
+
 {% endblock index %}
 {% endblock main_content %}
 
 {% block scripts %}
 <script>
     let currentIndex = 0;
-    const totalSlides = 4;
     const carousel = document.getElementById("carousel");
+    const slides = carousel.children;
+    const totalSlides = slides.length;
     const leftArrow = document.getElementById("leftArrow");
+    const rightArrow = document.getElementById("rightArrow");
 
     function updateSlide() {
-        const offset = -currentIndex * window.innerWidth;
+        const slideWidth = slides[0].offsetWidth;
+        const offset = -currentIndex * slideWidth;
         carousel.style.transform = `translateX(${offset}px)`;
 
-        // Toggle visibility of left arrow
-        if (currentIndex === 0) {
-            leftArrow.classList.add('hidden');
-        } else {
-            leftArrow.classList.remove('hidden');
-        }
+        // Arrow visibility
+        leftArrow.classList.toggle('hidden', currentIndex === 0);
+        rightArrow.classList.toggle('hidden', currentIndex === totalSlides - 1);
     }
 
     function nextSlide() {
-        currentIndex = (currentIndex + 1) % totalSlides;
-        updateSlide();
+        if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            updateSlide();
+        }
     }
 
     function prevSlide() {
-        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-        updateSlide();
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateSlide();
+        }
     }
 
+    // Resize handling
     window.addEventListener('resize', updateSlide);
     window.addEventListener('load', updateSlide);
 </script>

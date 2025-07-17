@@ -4,83 +4,105 @@
 {% block title %}My Orders{% endblock %}
 
 {% block main_content %}
-<div class="flex justify-end mb-4 px-4">
-    <a href="{{ request.META.HTTP_REFERER }}"
-       class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
-        </svg>
-        Back
-    </a>
-</div>
+<div class="max-w-6xl mx-auto px-4 pt-4">
 
-<div class="max-w-6xl mx-auto px-4">
-    <div class="bg-[#f8f4ee] shadow p-4 rounded-lg mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <!-- Back Button -->
+    <div class="flex justify-end mb-4">
+        <a href="{{ request.META.HTTP_REFERER }}"
+           class="flex items-center text-sm border px-4 py-1 rounded hover:bg-gray-100 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
+            </svg>
+            Back
+        </a>
+    </div>
+
+    <!-- Header + Search -->
+    <div class="bg-[#f8f4ee] shadow p-4 rounded-lg mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 class="text-[#c6922e] font-semibold text-xl">
             My Orders ({{ orders|length }})
         </h1>
-        <form method="get" class="flex flex-1 items-center gap-2 w-full sm:w-auto">
+        <form method="get" class="flex w-full sm:w-auto gap-2">
             <input type="text" name="search" value="{{ search_query }}"
-                   placeholder="Search by product name or reference"
+                   placeholder="Search by product or reference"
                    class="border border-gray-300 px-3 py-2 rounded w-full focus:ring-2 focus:ring-[#c6922e]">
             <button type="submit"
-                    class="bg-[#c6922e] text-white px-4 py-2 rounded hover:bg-yellow-700">
+                    class="bg-[#c6922e] text-white px-4 py-2 rounded hover:bg-yellow-700 transition">
                 Filter
             </button>
         </form>
     </div>
 
     {% if orders %}
-    <div class="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
+    <!-- Orders List -->
+    <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
         {% for order in orders %}
-        <div class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition p-4">
+        <div class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-md transition p-4">
             <div class="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
+
+                <!-- Product Info -->
                 <div class="flex items-center gap-4 flex-1">
-                    {% if order.product.image %}
-                    <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}"
-                         class="w-16 h-16 object-cover rounded">
-                    {% else %}
-                    <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}" class="w-16 h-16 rounded">
-                    {% endif %}
+                    <a href="{% url 'view_product' order.product.id %}">
+                        {% if order.product.image %}
+                        <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}"
+                             class="w-16 h-16 object-cover rounded border">
+                        {% else %}
+                        <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}"
+                             class="w-16 h-16 rounded border">
+                        {% endif %}
+                    </a>
                     <div>
-                        <h2 class="text-lg font-semibold text-gray-800">
-                            {{ forloop.counter }}. <a href="{% url 'view_product' order.product.id %}"
-                                                      class="border-b-2 hover:border-blue-600">
-                            {{ order.product.name }}</a> x {{ order.weight }} x {{ order.quantity }}x
-                            {{ order.product.price }}
+                        <h2 class="text-base font-semibold text-gray-800">
+                            {{ forloop.counter }}.
+                            <a href="{% url 'view_product' order.product.id %}"
+                               class="border-b-2 border-transparent hover:border-blue-600 transition">
+                                {{ order.product.name }}
+                            </a>
                         </h2>
-                        <p class="text-sm text-gray-500">{{ order.reference }}</p>
+                        <p class="text-sm text-gray-600 mt-1">
+                            {{ order.weight }} x {{ order.quantity }} × {{ order.product.price }}
+                        </p>
+                        <p class="text-xs text-gray-500">{{ order.reference }}</p>
                     </div>
                 </div>
-                <div class="text-sm text-gray-600 text-right w-full sm:w-40">
+
+                <!-- Order Summary -->
+                <div class="w-full sm:w-52 text-sm text-right text-gray-700">
                     <p><span class="font-medium">Amount:</span> {{ bakery.country.currency_symbol }}
                         {{ order.total_amount }}</p>
                     <p><span class="font-medium">Date:</span> {{ order.order_date }}</p>
-                    <p><span class="font-medium">Status:</span>
-                        <span class="uppercase">
+                    <p>
+                        <span class="font-medium">Status:</span>
+                        <span class="uppercase font-semibold
+                            {% if order.order_state == 'cancel' %}
+                                text-red-600
+                            {% else %}
+                                text-green-600
+                            {% endif %}">
                             {{ order.get_order_state_display_value }}
                         </span>
                     </p>
                 </div>
             </div>
 
-            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+            <!-- Additional Info -->
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
                 <div>
                     <p><span class="font-medium">Category:</span> {{ order.product.category.name }}</p>
                     <p><span class="font-medium">Ordered By:</span> {{ order.user.username }}</p>
                 </div>
-                <div class="text-sm">
+                <div>
                     {% if order.address %}
                     <p><span class="font-medium">Address:</span> {{ order.address.phone }}, {{ order.address.address }}
                     </p>
                     {% else %}
-                    <span class="text-gray-400 italic">[Address deleted]</span>
+                    <p class="text-gray-400 italic">[Address deleted]</p>
                     {% endif %}
 
                     {% if order.order_state != 'cancel' %}
-                    <a href="{% url 'cancel_order' order.id %}"
-                       class="text-red-600 hover:underline font-medium">
+                    <a href="{% url 'cancel_order' order.id %}" class="text-red-600 hover:underline font-medium">
                         Cancel Order
                     </a>
                     {% endif %}
@@ -90,7 +112,10 @@
         {% endfor %}
     </div>
     {% else %}
-    <p class="text-center text-gray-500 mt-20 text-lg">You have not placed any orders yet.</p>
+    <!-- Empty Orders -->
+    <p class="text-center text-gray-500 mt-20 text-lg">
+        You have not placed any orders yet.
+    </p>
     {% endif %}
 </div>
-{% endblock %}
+{% endblock main_content %}

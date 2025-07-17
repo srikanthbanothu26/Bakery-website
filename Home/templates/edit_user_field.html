@@ -2,34 +2,43 @@
 {% block title %}Edit {{ field_label }}{% endblock %}
 
 {% block main_content %}
-<div class="max-w-xl mx-auto bg-white dark:bg-gray-900 p-6 rounded shadow mt-8">
-    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
-        Edit {{ field_label }}
-    </h2>
+<div class="max-w-lg mx-auto mt-12 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-md">
+    <!-- Title with Back Button -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+            Edit {{ field_label }}
+        </h2>
+        <a href="{% url 'user_info' user_profile.user.id %}"
+           class="text-sm text-blue-600 hover:underline hover:text-blue-800 transition">
+            ← Back
+        </a>
+    </div>
 
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
         {% csrf_token %}
 
+        <!-- Field -->
         <div>
-            <label for="form_field" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label for="form_field" class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                 {{ field_label }}
             </label>
             {{ form_field }}
             {% if form_field.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form_field.errors.0 }}</p>
+            <p class="text-sm text-red-600 mt-1">{{ form_field.errors.0 }}</p>
             {% endif %}
         </div>
 
-        <div class="flex justify-between items-center">
-            <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition">
-                💾 Save
-            </button>
+        <!-- Actions -->
+        <div class="flex justify-end gap-4 mt-6">
             <a href="{% url 'user_info' user_profile.user.id %}"
-               class="text-sm text-gray-500 hover:text-blue-600 transition underline">
+               class="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:text-gray-800 hover:border-gray-600 transition">
                 Cancel
             </a>
+            <button type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-medium">
+                Save
+            </button>
         </div>
     </form>
 </div>
-{% endblock %}
+{% endblock main_content %}
