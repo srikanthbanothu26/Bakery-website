@@ -27,8 +27,12 @@
 
                 <!-- Product Image -->
                 <a href="{% url 'view_product' cart.product.id %}" class="w-full sm:w-32 flex-shrink-0">
+                    {% if cart.product.image %}
                     <img src="{{ cart.product.image.url }}"
                          alt="{{ cart.product.name }}"
+                         class="w-full h-32 object-contain border rounded">
+                    {% else %}
+                    <img src="{{ bakery.logo.url }}" alt="{{ bakery.name }}"
                          class="w-full h-32 object-contain border rounded">
                 </a>
 

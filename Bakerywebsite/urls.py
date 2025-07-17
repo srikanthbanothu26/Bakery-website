@@ -16,8 +16,16 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.static import serve
 from django.conf.urls.static import static
+
+from django.contrib.sitemaps.views import sitemap
+from Home.sitemaps import StaticViewSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
@@ -25,4 +33,11 @@ urlpatterns = [
                   path('store/', include('Store.urls')),
                   path('user/', include('userauth.urls')),
                   path('pos/', include('pointofsale.urls')),
+                  path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+
+                  # Serve robots.txt from static folder
+                  re_path(r'^robots\.txt$', serve, {
+                      'document_root': settings.STATICFILES_DIRS[0],  # Serve from static folder
+                      'path': 'robots.txt',
+                  }),
               ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS)
