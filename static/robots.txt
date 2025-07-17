@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://native-karrie-srkm-b0bf17a5.koyeb.app/sitemap.xml
