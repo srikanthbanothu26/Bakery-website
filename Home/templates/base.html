@@ -109,9 +109,9 @@
                         <a href="{% url 'user_info' user.id %}" class="block px-4 py-2 hover:bg-gray-100">Profile</a>
                         <a href="{% url 'orders' %}" class="block px-4 py-2 hover:bg-gray-100">My Orders</a>
                         <a href="{% url 'user_address' %}" class="block px-4 py-2 hover:bg-gray-100">Manage Address</a>
+                        <a href="#footer" class="block px-4 py-2 hover:bg-gray-100">Contact Us</a>
                         <a href="{% url 'user_logout' %}"
                            class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
-                        <a href="#footer" class="block px-4 py-2 hover:bg-gray-100">Contact Us</a>
                     </div>
                 </div>
                 {% else %}
@@ -163,7 +163,6 @@
             <a href="{% url 'user_register' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Sign Up</a>
             <a href="{% url 'user_login' %}" class="block px-2 py-1 hover:text-[#b57c1b]">Login</a>
             {% endif %}
-
             <a href="#footer" class="block px-2 py-1 hover:text-[#b57c1b]">Contact Us</a>
         </div>
     </div>
