@@ -11,3 +11,5 @@
 /userauth/migrations/__pycache__/
 /script.py
 /products.csv
+/.env
+/test_walkey.py
