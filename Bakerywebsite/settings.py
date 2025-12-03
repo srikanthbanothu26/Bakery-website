@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     "native-karrie-srkm-b0bf17a5.koyeb.app",
     "127.0.0.1",
     "localhost",
+    "bakery-website-tnjl.onrender.com",
 ]
 
 # Application definition
