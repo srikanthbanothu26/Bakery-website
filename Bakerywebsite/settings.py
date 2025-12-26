@@ -139,9 +139,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# CELERY_BROKER_URL = "rediss://default:AVNS_4iwVjEaIcoZOfI8QwAo@valkey-2652b664-banothusrikanth267-d588.e.aivencloud.com:26622"
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
+CELERY_BROKER_URL = "rediss://default:AVNS_4iwVjEaIcoZOfI8QwAo@valkey-2652b664-banothusrikanth267-d588.e.aivencloud.com:26622"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
