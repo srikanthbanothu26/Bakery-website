@@ -14,7 +14,7 @@ class ProductCategory(models.Model):
 class Products(models.Model):
     weights = [
         ('250gm', '250 GM'),
-        ('500gm', '5000 GM'),
+        ('500gm', '500 GM'),
         ('1kg', '1 KGM'),
         ('1500gm', '1500 GM'),
         ('2kg', '2 KGM'),
@@ -61,7 +61,7 @@ class Orders(models.Model):
     reference = models.CharField(max_length=20, blank=True, null=True, unique=True)
     order_date = models.DateTimeField(blank=True, null=True)
     status = models.BooleanField(default=False)
-    order_state = models.CharField(choices=status_choices, max_length=20, null=True, blank=True)
+    order_state = models.CharField(choices=status_choices, max_length=20, null=True, blank=True, default="draft")
     quantity = models.CharField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -75,12 +75,13 @@ class Orders(models.Model):
 
         super().save(*args, **kwargs)
 
-        if not self.status:
+        if not self.status and self.order_state != 'cancel':
             from Store.tasks import mark_order_status_true
             mark_order_status_true.apply_async((self.id,), countdown=300)
 
     def __str__(self):
-        return f"{self.reference} - {self.user.username}"
+        username = self.user.username if self.user else "Guest"
+        return f"{self.reference} - {username}"
 
     def get_order_state_display_value(self):
         return dict(self.status_choices).get(self.order_state, self.order_state)

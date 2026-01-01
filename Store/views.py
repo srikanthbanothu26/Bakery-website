@@ -166,7 +166,7 @@ def start_order(request, product_id):
 
     if request.method == 'POST':
         quantity = float(request.POST.get("quantity") or 1)
-        selected_weight = request.POST.get("weight")
+        selected_weight = request.POST.get("weight1")
         weight_multiplier = {
             '250gm': 0.25,
             '500gm': 0.5,
@@ -187,8 +187,8 @@ def start_order(request, product_id):
     # Get data from session if returning from payment page
     order_data = request.session.get('order_data')
     if order_data:
-        quantity = order_data.get('quantity', 1)
-        selected_weight = order_data.get('weight', '1kg')
+        quantity = order_data.get('quantity')
+        selected_weight = order_data.get('weight')
         total_amount = order_data.get('total_amount', product.price)
 
     else:
@@ -255,7 +255,7 @@ def place_order(request):
         product = get_object_or_404(Products, id=request.POST['product_id'])
         address = get_object_or_404(Address, id=request.POST['address_id'])
         total_amount = float(request.POST.get('total_amount', 0.0))
-        selected_weight = request.POST.get('weight', '1kg')
+        selected_weight = request.POST.get('weight')
         quantity = float(request.POST.get("quantity"))
 
         Orders.objects.create(
@@ -278,18 +278,33 @@ def place_order(request):
             'product_categories': product_categories,
         })
 
+from django.core.paginator import Paginator
+from django.db.models import Q, Count
 
 def get_orders(request):
     bakery = Bakery.objects.filter(active=True).first()
     search_query = request.GET.get('search', '')
-    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
-    orders = Orders.objects.filter(user=request.user).order_by('-id')
+
+    orders_qs = (
+        Orders.objects.filter(user=request.user)
+        .select_related('product', 'user', 'address')
+        .order_by('-id')
+    )
 
     if search_query:
-        orders = orders.filter(
+        orders_qs = orders_qs.filter(
             Q(product__name__icontains=search_query) |
             Q(reference__icontains=search_query)
         )
+
+    # PAGINATION — 5 per page
+    paginator = Paginator(orders_qs, 5)
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
+
+    product_categories = ProductCategory.objects.annotate(
+        product_count=Count('products')
+    )
 
     return render(request, 'orders.html', {
         'orders': orders,
@@ -298,10 +313,9 @@ def get_orders(request):
         'product_categories': product_categories,
     })
 
-
 def cancel_order(request, order_id):
     order = get_object_or_404(Orders, id=order_id)
-    if order.order_state == 'draft' or order.order_state == 'confirm':
+    if order.order_state == 'draft':
         order.order_state = 'cancel'
         order.save()
     return redirect('orders')

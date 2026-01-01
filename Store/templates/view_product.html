@@ -88,14 +88,22 @@
 
             <!-- Weight Select -->
             <div class="relative flex-1 min-w-0">
+                <!--                <select id="order_weight"-->
+                <!--                        class="appearance-none w-full bg-white text-gray-800 border border-[#c6922e] rounded-lg px-4 py-2 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c6922e] text-sm truncate">-->
+                <!--                    <option value="250gm">250 GM</option>-->
+                <!--                    <option value="500gm">500 GM</option>-->
+                <!--                    <option value="1kg" selected>1 KG</option>-->
+                <!--                    <option value="1500gm">1.5 KG</option>-->
+                <!--                    <option value="2kg">2 KG</option>-->
+                <!--                </select>-->
                 <select id="order_weight"
+                        name="weight"
                         class="appearance-none w-full bg-white text-gray-800 border border-[#c6922e] rounded-lg px-4 py-2 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#c6922e] text-sm truncate">
-                    <option value="250gm">250 GM</option>
-                    <option value="500gm">500 GM</option>
-                    <option value="1kg" selected>1 KG</option>
-                    <option value="1500gm">1.5 KG</option>
-                    <option value="2kg">2 KG</option>
+                    {% for w in product.weights %}
+                    <option value="{{ w.0 }}">{{ w.1 }}</option>
+                    {% endfor %}
                 </select>
+
                 <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[#c6922e]">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M7 7l3-3 3 3m0 6l-3 3-3-3"/>
@@ -114,6 +122,7 @@
         <form method="POST" action="{% url 'start_order' product.id %}" class="space-y-3">
             {% csrf_token %}
             <input type="hidden" name="quantity" id="order_qty" value="1">
+            <input type="hidden" name="weight1" id="order_weight1" value="1">
             <input type="hidden" name="total_amount" id="order_total_amount" value="{{ product.price }}">
             <button type="submit"
                     class="w-full bg-[#c6922e] text-white py-2 rounded hover:bg-[#b07d1e] transition font-semibold">
@@ -126,6 +135,7 @@
 
 {% block scripts %}
 <script>
+
     document.addEventListener('DOMContentLoaded', () => {
         function showToast(msg) {
             const toast = document.createElement('div');
@@ -177,6 +187,7 @@
         const weightSelect = document.getElementById('order_weight');
         const totalAmountInput = document.getElementById('order_total_amount');
         const displayTotal = document.getElementById('display_total');
+        const weightHidden = document.getElementById('order_weight1');
 
         const unitPrice = {{ product.price|floatformat:2 }};
         let qty = 1;
@@ -199,6 +210,7 @@
             displayTotal.textContent = total.toFixed(2);
             qtyInput.value = qty;
             qtyEl.textContent = qty;
+            weightHidden.value = weightSelect.value;
         }
 
         increaseBtn.addEventListener('click', () => {

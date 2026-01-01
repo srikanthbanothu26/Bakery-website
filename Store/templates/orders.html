@@ -26,8 +26,8 @@
         </h1>
         <form method="get" class="flex w-full sm:w-auto gap-2">
             <input type="text" name="search" value="{{ search_query }}"
-                   placeholder="Search by product or reference"
-                   class="border border-gray-300 px-3 py-2 rounded w-full focus:ring-2 focus:ring-[#c6922e]">
+                   placeholder="Search by name or reference"
+                   class="border border-gray-300 px-2 py-2 rounded w-full focus:ring-2 focus:ring-[#c6922e]">
             <button type="submit"
                     class="bg-[#c6922e] text-white px-4 py-2 rounded hover:bg-yellow-700 transition">
                 Filter
@@ -37,7 +37,20 @@
 
     {% if orders %}
     <!-- Orders List -->
-    <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+    <div class="space-y-6 pr-2 mb-4">
+        <div class="pagination p-4 m-4">
+            {% if orders.has_previous %}
+            <a href="?page={{ orders.previous_page_number }}&search={{ search_query }}"
+               class="border-2 p-2 bg-blue-600 text-white">Previous</a>
+            {% endif %}
+
+            <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
+
+            {% if orders.has_next %}
+            <a href="?page={{ orders.next_page_number }}&search={{ search_query }}"
+               class="border-2 p-2 bg-blue-600 text-white">Next</a>
+            {% endif %}
+        </div>
         {% for order in orders %}
         <div class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-md transition p-4">
             <div class="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
@@ -62,7 +75,7 @@
                             </a>
                         </h2>
                         <p class="text-sm text-gray-600 mt-1">
-                            {{ order.weight }} x {{ order.quantity }} × {{ order.product.price }}
+                            {{ order.weight }} x {{ order.quantity }}
                         </p>
                         <p class="text-xs text-gray-500">{{ order.reference }}</p>
                     </div>
@@ -101,7 +114,7 @@
                     <p class="text-gray-400 italic">[Address deleted]</p>
                     {% endif %}
 
-                    {% if order.order_state != 'cancel' %}
+                    {% if order.order_state != 'cancel' and order.order_state != 'confirm' %}
                     <a href="{% url 'cancel_order' order.id %}" class="text-red-600 hover:underline font-medium">
                         Cancel Order
                     </a>
@@ -111,6 +124,7 @@
         </div>
         {% endfor %}
     </div>
+
     {% else %}
     <!-- Empty Orders -->
     <p class="text-center text-gray-500 mt-20 text-lg">

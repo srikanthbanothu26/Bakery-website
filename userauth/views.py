@@ -33,10 +33,10 @@ def login(request):
             auth_login(request, user)
 
             user_info, created = UserInfo.objects.get_or_create(user=user)
-            if created:
-                print("New UserInfo created for:", user.username)
-            else:
-                print("Existing UserInfo found for:", user.username)
+            # if created:
+            #     print("New UserInfo created for:", user.username)
+            # else:
+            #     print("Existing UserInfo found for:", user.username)
 
             messages.success(request, f"Welcome back, {user.username}!")
             return redirect('home')
