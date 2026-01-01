@@ -167,6 +167,7 @@ def start_order(request, product_id):
     if request.method == 'POST':
         quantity = float(request.POST.get("quantity") or 1)
         selected_weight = request.POST.get("weight1")
+        # print(quantity, selected_weight)
         weight_multiplier = {
             '250gm': 0.25,
             '500gm': 0.5,
@@ -190,6 +191,7 @@ def start_order(request, product_id):
         quantity = order_data.get('quantity')
         selected_weight = order_data.get('weight')
         total_amount = order_data.get('total_amount', product.price)
+        # print(quantity, selected_weight, total_amount, product.price)
 
     else:
         # fallback defaults
