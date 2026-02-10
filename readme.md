@@ -1,4 +1,4 @@
-# 🥐 Bakery Management System – Web Application
+#  Bakery Management System – Web Application
 
 A full-stack **Bakery Management Web Application** designed to manage products, orders, billing, and daily operations efficiently.  
 This project demonstrates real-world workflow implementation with a clean UI and fast performance.
