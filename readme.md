@@ -1,4 +1,4 @@
-# 🥐 Bakery Management System – Web Application
+#  Bakery Management System – Web Application
 
 A full-stack **Bakery Management Web Application** designed to manage products, orders, billing, and daily operations efficiently.  
 This project demonstrates real-world workflow implementation with a clean UI and fast performance.
@@ -62,5 +62,6 @@ python manage.py createsuperuser
 
 
 7. Run the server:
+
 
 python manage.py runserver
