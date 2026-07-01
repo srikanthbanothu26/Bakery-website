@@ -2,86 +2,686 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Login</title>
-    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-</head>
-<body class="bg-[#f8f4ee] text-[#c6922e] flex items-center justify-center px-4 py-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Back Button -->
-<div class="absolute top-6 right-6">
-    <a href="{% url 'home' %}"
-       class="flex items-center text-blue-600 hover:text-blue-800 border border-blue-500 px-3 py-1.5 rounded transition duration-150">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"/>
-        </svg>
-        Back
-    </a>
-</div>
+    <title>
+        {% if company %}
+        {{ company.name }}
+        {% else %}
+        Login
+        {% endif %}
+    </title>
 
-<!-- Login Box -->
-<div class="bg-white shadow-xl p-8 rounded-lg w-full max-w-md border border-[#e6d3aa]">
-    <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Login</h2>
-
-    <!-- Messages -->
-    {% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-        <p class="text-center text-red-600 font-semibold text-sm">{{ message }}</p>
-        {% endfor %}
-    </div>
+    {% if company %}
+    <link rel="icon" href="{{ company.logo.url }}">
     {% endif %}
 
-    <!-- Login Form -->
-    <form method="post" class="space-y-6">
-        {% csrf_token %}
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
 
-        <!-- Username -->
-        <div>
-            <label for="id_username" class="block text-sm font-medium mb-1 text-gray-700">Username</label>
-            <input type="text" name="username" id="id_username" placeholder="Enter your username"
-                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#c6922e] focus:border-[#c6922e] text-gray-900"
-                   required>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100">
+
+<!-- Header -->
+<header class="bg-white shadow">
+
+    <div class="max-w-7xl mx-auto h-16 flex items-center justify-between px-6">
+
+        <div class="flex items-center gap-3">
+
+            {% if company %}
+            <img
+                    src="{{ company.logo.url }}"
+                    class="h-10 w-10 rounded-lg object-cover"
+                    alt="Logo">
+
+            <span class="text-xl font-bold text-gray-800">
+                {{ company.name }}
+            </span>
+            {% endif %}
+
         </div>
 
-        <!-- Password -->
-        <div class="relative">
-            <label for="id_password" class="block text-sm font-medium mb-1 text-gray-700">Password</label>
-            <input type="password" name="password" id="id_password" placeholder="Enter your password"
-                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#c6922e] focus:border-[#c6922e] text-gray-900 pr-10"
-                   required>
-            <button type="button" onclick="togglePassword('id_password', this)"
-                    class="absolute right-3 top-9 text-sm text-gray-500 hover:text-gray-800 focus:outline-none">
-                Show
-            </button>
+    </div>
+
+</header>
+
+
+<!-- Login Card -->
+
+<section class="flex justify-center items-center py-16 px-4">
+
+    <div class="w-full max-w-md">
+
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+            <div class="p-10">
+
+                <!-- Logo -->
+
+                <div class="flex justify-center">
+
+                    {% if company %}
+                    <img
+                            src="{{ company.logo.url }}"
+                            class="h-20 w-20 rounded-full border object-cover shadow">
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Title -->
+
+                <div class="text-center mt-6">
+
+                    <h1 class="text-3xl font-bold text-gray-800">
+
+                        Welcome Back 👋
+
+                    </h1>
+
+                    <p class="text-gray-500 mt-2">
+
+                        Sign in to your account
+
+                    </p>
+
+                </div>
+
+
+                <!-- Message -->
+
+                <div
+                        id="message-box"
+                        class="hidden mt-6 rounded-xl px-4 py-3 text-sm font-medium">
+                </div>
+
+
+                <!-- Form -->
+
+                <form
+                        id="login-form"
+                        class="mt-8 space-y-6">
+
+                    {% csrf_token %}
+
+
+                    <!-- Email -->
+
+                    <div>
+
+                        <label class="block mb-2 text-sm font-semibold text-gray-700">
+
+                            Email Address
+
+                        </label>
+
+                        <input
+                                id="email"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition">
+
+                    </div>
+
+
+                    <!-- Send OTP Button -->
+
+                    <div>
+
+                        <button
+
+                                id="send-btn"
+
+                                type="button"
+
+                                class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 transition text-white py-3 font-semibold cursor-pointer">
+
+                            Send Verification Code
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- OTP SECTION -->
+
+                    <div
+                            id="otp-section"
+                            class="hidden border-t pt-8">
+
+                        <div class="text-center">
+
+                            <div class="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-4 py-2">
+
+                                <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor">
+
+                                    <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M5 13l4 4L19 7"/>
+
+                                </svg>
+
+                                <span>
+
+Verification code sent
+
+</span>
+
+                            </div>
+
+                            <p class="mt-4 text-gray-500 text-sm">
+
+                                Enter the 6-digit code
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- OTP BOXES -->
+
+                        <div
+                                class="flex justify-between mt-6">
+
+                            <input maxlength="1" class="otp-input">
+                            <input maxlength="1" class="otp-input">
+                            <input maxlength="1" class="otp-input">
+                            <input maxlength="1" class="otp-input">
+                            <input maxlength="1" class="otp-input">
+                            <input maxlength="1" class="otp-input">
+
+                        </div>
+
+
+                        <!-- Timer -->
+
+                        <div class="text-center mt-6">
+
+                            <p class="text-sm text-gray-500">
+
+                                Code expires in
+
+                            </p>
+
+                            <p
+                                    id="countdown"
+                                    class="text-2xl font-bold text-red-600 mt-1">
+
+                                00:45
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- Verify -->
+
+                        <button
+
+                                id="verify-btn"
+
+                                type="button"
+
+                                class="mt-8 w-full rounded-xl bg-green-600 hover:bg-green-700 transition text-white py-3 font-semibold cursor-pointer">
+
+                            Verify & Login
+
+                        </button>
+
+
+                        <!-- Resend -->
+
+                        <button
+
+                                id="resend-btn"
+
+                                type="button"
+
+                                class="hidden mt-3 w-full rounded-xl bg-gray-800 hover:bg-black text-white py-3 rounded-xl cursor-pointer">
+
+                            Resend OTP
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="text-center mt-8">
+
+                        <a
+                                href="{% url 'user_register' %}"
+                                class="text-blue-600 hover:underline">
+
+                            Create Account
+
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
 
-        <!-- Submit -->
-        <button type="submit"
-                class="w-full bg-[#c6922e] hover:bg-yellow-600 text-white font-semibold py-2 rounded shadow-md transition duration-150">
-            Login
-        </button>
+    </div>
 
-        <!-- Sign up -->
-        <p class="text-center text-sm mt-4 text-gray-600">
-            Don’t have an account?
-            <a href="{% url 'user_register' %}" class="font-semibold text-red-600 hover:underline">Sign Up</a>
-        </p>
-    </form>
-</div>
+</section>
 
-<script>
-    function togglePassword(fieldId, button) {
-        const input = document.getElementById(fieldId);
-        if (input.type === "password") {
-            input.type = "text";
-            button.innerText = "Hide";
-        } else {
-            input.type = "password";
-            button.innerText = "Show";
-        }
-    }
-</script>
+<!-- JavaScript will be added in Part 2 -->
 
 </body>
+
+<style>
+
+    .otp-input{
+
+    width:56px;
+
+    height:60px;
+
+    border:2px solid #d1d5db;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    outline:none;
+
+    transition:.3s;
+
+    }
+
+    .otp-input:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 0 3px rgba(37,99,235,.15);
+
+    }
+
+</style>
+<script>
+
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    const emailInput = document.getElementById("email");
+
+    const sendBtn = document.getElementById("send-btn");
+
+    const verifyBtn = document.getElementById("verify-btn");
+
+    const resendBtn = document.getElementById("resend-btn");
+
+    const otpSection = document.getElementById("otp-section");
+
+    const countdown = document.getElementById("countdown");
+
+    const messageBox = document.getElementById("message-box");
+
+    const otpInputs = document.querySelectorAll(".otp-input");
+
+    let timer = null;
+    let seconds = 45;
+
+
+    /*-----------------------------------
+    Message
+    -----------------------------------*/
+
+    function showMessage(message, success=true){
+
+        messageBox.classList.remove("hidden");
+
+        if(success){
+
+            messageBox.className =
+            "mt-6 rounded-xl px-4 py-3 bg-green-100 text-green-700";
+
+        }else{
+
+            messageBox.className =
+            "mt-6 rounded-xl px-4 py-3 bg-red-100 text-red-700";
+
+        }
+
+        messageBox.innerHTML = message;
+
+    }
+
+
+    /*-----------------------------------
+    Timer
+    -----------------------------------*/
+
+    function startTimer(){
+
+        clearInterval(timer);
+
+        seconds = 45;
+
+        resendBtn.classList.add("hidden");
+
+        verifyBtn.disabled = false;
+
+        otpInputs.forEach(input=>{
+            input.disabled=false;
+        });
+
+        timer = setInterval(function(){
+
+            countdown.innerHTML =
+                "00:" + String(seconds).padStart(2,"0");
+
+            seconds--;
+
+            if(seconds < 0){
+
+                clearInterval(timer);
+
+                countdown.innerHTML = "Expired";
+
+                verifyBtn.disabled = true;
+
+                otpInputs.forEach(input=>{
+                    input.disabled=true;
+                });
+
+                resendBtn.classList.remove("hidden");
+
+            }
+
+        },1000);
+
+    }
+
+
+    /*-----------------------------------
+    OTP Auto Next
+    -----------------------------------*/
+
+    otpInputs.forEach((input,index)=>{
+
+        input.addEventListener("input",function(){
+
+            this.value=this.value.replace(/[^0-9]/g,'');
+
+            if(this.value && index<otpInputs.length-1){
+
+                otpInputs[index+1].focus();
+
+            }
+
+        });
+
+    });
+
+
+    /*-----------------------------------
+    Backspace
+    -----------------------------------*/
+
+    otpInputs.forEach((input,index)=>{
+
+        input.addEventListener("keydown",function(e){
+
+            if(e.key==="Backspace" && !this.value && index>0){
+
+                otpInputs[index-1].focus();
+
+            }
+
+        });
+
+    });
+
+
+    /*-----------------------------------
+    Paste OTP
+    -----------------------------------*/
+
+    otpInputs[0].addEventListener("paste",function(e){
+
+        e.preventDefault();
+
+        let otp = e.clipboardData.getData("text");
+
+        otp = otp.replace(/\D/g,'');
+
+        if(otp.length!==6)
+            return;
+
+        otpInputs.forEach((box,index)=>{
+
+            box.value=otp[index];
+
+        });
+
+    });
+
+
+    /*-----------------------------------
+    SEND OTP
+    -----------------------------------*/
+
+    sendBtn.addEventListener("click",function(){
+
+        let email=emailInput.value.trim();
+
+        if(email===""){
+
+            showMessage("Please enter email.",false);
+
+            return;
+
+        }
+
+        sendBtn.disabled=true;
+
+        sendBtn.innerHTML="Sending...";
+
+        fetch("{% url 'send_login_otp' %}",{
+
+            method:"POST",
+
+            headers:{
+
+                "X-CSRFToken":csrfToken,
+
+                "Content-Type":"application/x-www-form-urlencoded"
+
+            },
+
+            body:new URLSearchParams({
+
+                email:email
+
+            })
+
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+
+            sendBtn.disabled=false;
+
+            sendBtn.innerHTML="Send Verification Code";
+
+            if(data.success){
+
+                showMessage(data.message,true);
+
+                otpSection.classList.remove("hidden");
+
+                emailInput.readOnly=true;
+
+                otpInputs[0].focus();
+
+                startTimer();
+
+            }else{
+
+                showMessage(data.message,false);
+
+            }
+
+        });
+
+    });
+
+
+    /*-----------------------------------
+    VERIFY OTP
+    -----------------------------------*/
+
+    verifyBtn.addEventListener("click",function(){
+
+        let otp="";
+
+        otpInputs.forEach(input=>{
+
+            otp += input.value;
+
+        });
+
+        if(otp.length!==6){
+
+            showMessage("Please enter OTP.",false);
+
+            return;
+
+        }
+
+        verifyBtn.disabled=true;
+
+        verifyBtn.innerHTML="Verifying...";
+
+        fetch("{% url 'verify_login_otp' %}",{
+
+            method:"POST",
+
+            headers:{
+
+                "X-CSRFToken":csrfToken,
+
+                "Content-Type":"application/x-www-form-urlencoded"
+
+            },
+
+            body:new URLSearchParams({
+
+                otp:otp
+
+            })
+
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+
+            verifyBtn.disabled=false;
+
+            verifyBtn.innerHTML="Verify & Login";
+
+            if(data.success){
+
+                showMessage("Login Successful ✔");
+
+                setTimeout(function(){
+
+                    window.location.href=data.redirect_url;
+
+                },1000);
+
+            }else{
+
+                showMessage(data.message,false);
+
+                otpInputs.forEach(input=>{
+
+                    input.value="";
+
+                });
+
+                otpInputs[0].focus();
+
+            }
+
+        });
+
+    });
+
+
+    /*-----------------------------------
+    RESEND OTP
+    -----------------------------------*/
+
+    resendBtn.addEventListener("click",function(){
+
+        resendBtn.disabled=true;
+
+        resendBtn.innerHTML="Sending...";
+
+        fetch("{% url 'resend_login_otp' %}",{
+
+            method:"POST",
+
+            headers:{
+
+                "X-CSRFToken":csrfToken
+
+            }
+
+        })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+
+            resendBtn.disabled=false;
+
+            resendBtn.innerHTML="Resend OTP";
+
+            if(data.success){
+
+                otpInputs.forEach(input=>{
+
+                    input.value="";
+
+                    input.disabled=false;
+
+                });
+
+                otpInputs[0].focus();
+
+                showMessage("New OTP sent successfully.");
+
+                startTimer();
+
+            }else{
+
+                showMessage(data.message,false);
+
+            }
+
+        });
+
+    });
+
+</script>
+
 </html>
