@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "bakery-website-tnjl.onrender.com",
     "useful-livvie-srkm-9829fc9c.koyeb.app",
+    "*"
 ]
 
 # Application definition
