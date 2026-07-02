@@ -11,6 +11,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db.models import Count
+from django.http import Http404
+from django.forms import modelform_factory
 
 
 # from .location_fetching import get_location_from_ip
@@ -35,54 +37,81 @@ def about(request):
 @login_required
 def user_info(request, user_id):
     bakery = Bakery.objects.filter(active=True).first()
-    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+    product_categories = ProductCategory.objects.annotate(
+        product_count=Count('products')
+    )
 
     user = get_object_or_404(User, id=user_id)
-    user_profile = get_object_or_404(UserInfo, user=user)
 
-    return render(request, 'user_info.html', {
-        'bakery': bakery,
-        'current_user': user_profile,
-        'product_categories': product_categories,
+    user_profile, created = UserInfo.objects.get_or_create(user=user)
+
+    # Populate only if empty
+    if not user_profile.name:
+        user_profile.name = user.username
+
+    if not user_profile.email:
+        user_profile.email = user.email
+
+    user_profile.save()
+
+    return render(request, "user_info.html", {
+        "bakery": bakery,
+        "current_user": user_profile,
+        "product_categories": product_categories,
     })
-
-
-from django.forms import modelform_factory
 
 
 @login_required
 def edit_user_field(request, field):
-    product_categories = ProductCategory.objects.annotate(product_count=Count('products'))
+    product_categories = ProductCategory.objects.annotate(
+        product_count=Count('products')
+    )
 
     bakery = Bakery.objects.filter(active=True).first()
     user_profile = get_object_or_404(UserInfo, user=request.user)
 
-    editable_fields = ['name', 'email', 'phone', 'address', 'city', 'pincode', 'image']
+    editable_fields = [
+        "name", "email", "phone",
+        "address", "city", "pincode", "image"
+    ]
+
     if field not in editable_fields:
         raise Http404("This field cannot be edited.")
 
     UserFieldForm = modelform_factory(UserInfo, fields=[field])
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserFieldForm(request.POST, request.FILES, instance=user_profile)
+
         if form.is_valid():
-            form.save()
-            return redirect('user_info', user_id=user_profile.user.id)
+            obj = form.save()
+
+            # Keep Django User in sync
+            if field == "name":
+                obj.user.username = obj.name
+
+            elif field == "email":
+                obj.user.email = obj.email
+
+            obj.user.save()
+
+            return redirect("user_info", user_id=request.user.id)
+
     else:
         form = UserFieldForm(instance=user_profile)
 
     form.fields[field].widget.attrs.update({
-        'class': 'w-full border-b-2 border-gray-300 focus:border-blue-500 transition p-2 outline-none bg-white dark:bg-gray-900 text-black dark:text-white',
-        'id': 'form_field'
+        "class": "w-full border-b-2 border-gray-300 focus:border-blue-500 transition p-2 outline-none bg-white dark:bg-gray-900 text-black dark:text-white",
+        "id": "form_field",
     })
 
-    return render(request, 'edit_user_field.html', {
-        'form': form,
-        'form_field': form[field],
-        'field_label': field.capitalize(),
-        'user_profile': user_profile,
-        'bakery': bakery,
-        'product_categories': product_categories,
+    return render(request, "edit_user_field.html", {
+        "form": form,
+        "form_field": form[field],
+        "field_label": field.capitalize(),
+        "user_profile": user_profile,
+        "bakery": bakery,
+        "product_categories": product_categories,
     })
 
 

@@ -20,7 +20,7 @@ class Products(models.Model):
         ('2kg', '2 KGM'),
     ]
     name = models.CharField(null=True, blank=True, max_length=400)
-    image = models.ImageField(null=True, blank=True, upload_to='static/images/products/')
+    image = models.ImageField(null=True, blank=True, upload_to='images/products/')
     price = models.FloatField(null=True, blank=True)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, null=True, blank=True,
                                  related_name='products')

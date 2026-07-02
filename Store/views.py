@@ -166,7 +166,11 @@ def start_order(request, product_id):
 
     if request.method == 'POST':
         quantity = float(request.POST.get("quantity") or 1)
-        selected_weight = request.POST.get("weight1")
+        # selected_weight = request.POST.get("weight1")
+        selected_weight = (
+                request.POST.get("weight1") or
+                request.POST.get("weight")
+        )
         # print(quantity, selected_weight)
         weight_multiplier = {
             '250gm': 0.25,
@@ -260,6 +264,8 @@ def place_order(request):
         selected_weight = request.POST.get('weight')
         quantity = float(request.POST.get("quantity"))
 
+        print("selected weight", selected_weight)
+
         Orders.objects.create(
             user=request.user,
             product=product,
@@ -280,8 +286,10 @@ def place_order(request):
             'product_categories': product_categories,
         })
 
+
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
+
 
 def get_orders(request):
     bakery = Bakery.objects.filter(active=True).first()
@@ -314,6 +322,7 @@ def get_orders(request):
         'search_query': search_query,
         'product_categories': product_categories,
     })
+
 
 def cancel_order(request, order_id):
     order = get_object_or_404(Orders, id=order_id)

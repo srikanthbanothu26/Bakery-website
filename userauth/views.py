@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from Home.models import Bakery
+from Home.models import Bakery,UserInfo
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -227,11 +227,17 @@ def register(request):
         },
     )
 
-
 def user_login(request):
     if request.user.is_authenticated:
+        # user_info = UserInfo.objects.filter(user=request.user).first()
+        #
+        # if not user_info:
+        #     UserInfo.objects.create(user=request.user)
+
         return redirect("home")
+
     company = Bakery.objects.filter(active=True).first()
+
     return render(
         request,
         "login.html",
@@ -240,7 +246,6 @@ def user_login(request):
             "form": LoginForm(),
         },
     )
-
 
 def send_login_otp(request):
     if request.method != "POST":

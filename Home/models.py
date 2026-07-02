@@ -24,7 +24,7 @@ class State(models.Model):
 class Bakery(models.Model):
     name = models.CharField(max_length=100)
     active = models.BooleanField(default=False)
-    logo = models.ImageField(upload_to='static/images/logo/')
+    logo = models.ImageField(upload_to='images/logo/')
     instagram = models.URLField(null=True, blank=True)
     twitter = models.URLField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
@@ -46,14 +46,15 @@ class UnitOfMeasurements(models.Model):
 
 
 class UserInfo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     city = models.CharField(null=True, blank=True)
     pincode = models.CharField(null=True, blank=True)
-    image = models.ImageField(upload_to='static/images/users', null=True, blank=True)
+    image = models.ImageField(upload_to='users/', null=True, blank=True)
 
     def __str__(self):
         return self.user.username

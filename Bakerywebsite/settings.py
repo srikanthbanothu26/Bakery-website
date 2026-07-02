@@ -140,6 +140,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 CELERY_BROKER_URL = "rediss://default:AVNS_4iwVjEaIcoZOfI8QwAo@valkey-2652b664-banothusrikanth267-d588.e.aivencloud.com:26622"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
