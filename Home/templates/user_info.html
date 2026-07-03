@@ -17,22 +17,32 @@
     </div>
 
     <!-- Profile Image Centered -->
+    <!-- Added "relative" to the main parent wrapper container -->
     <div class="relative mx-auto w-40 h-40 mb-8">
+
         {% if current_user.image %}
         <img src="{{ current_user.image.url }}" alt="User Image"
-             class="rounded-full object-cover w-full h-full shadow border">
+             class="rounded-md object-cover w-full h-full shadow border">
         {% else %}
         <div class="w-full h-full flex items-center justify-center text-gray-500 bg-gray-100 rounded-full border">
             No Image
         </div>
         {% endif %}
-        <div class="text-center mt-2">
+
+        <!-- Positioned this container absolutely to the top right of its relative parent -->
+        <div class="absolute top-2 right-2 text-center z-10">
             <a href="{% url 'edit_user_field' 'image' %}"
-               class="inline-flex items-center border px-4 py-2 rounded hover:bg-gray-100 text-sm">
-                Edit Profile Image
+               class="inline-flex items-center  p-2  hover:bg-gray-100 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"/>
+                </svg>
             </a>
         </div>
+
     </div>
+
 
     <!-- Grid Info Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
