@@ -21,11 +21,11 @@
     <div class="max-w-7xl mx-auto h-16 px-6 flex items-center">
         {% if company %}
         <img src="{{ company.logo.url }}" class="h-10 w-10 rounded-lg object-cover" alt="company.company_name">
-        <h1 class="ml-3 text-xl font-bold text-gray-700">
+        <a href="{% url 'home' %}" class="ml-3 text-xl font-bold text-gray-700">
 
             {{ company.name }}
 
-        </h1>
+        </a>
 
         {% endif %}
 
